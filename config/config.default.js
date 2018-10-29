@@ -7,7 +7,7 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1540471238491_9420';
 
   // add your config here
-  config.middleware = ['responseTime'];
+  config.middleware = [ 'responseTime', 'gzip' ];
 
   return config;
 };
