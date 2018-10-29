@@ -1,13 +1,32 @@
 'use strict';
 
 module.exports = appInfo => {
-  const config = exports = {};
-
-  // use for cookie sign key, should change to your own and keep security
-  config.keys = appInfo.name + '_1540471238491_9420';
-
-  // add your config here
-  config.middleware = [ 'responseTime', 'gzip' ];
-
-  return config;
+  return {
+    keys: appInfo.name + '_1540471238491_9420',
+    middleware: [ 'robot', 'responseTime', 'gzip' ],
+    gzip: {
+      threshold: 1024,
+    },
+    bodyParser: {
+      jsonLimit: '1mb',
+      formLimit: '1mb',
+    },
+    robot: {
+      ua: [ /Baiduspider/i ],
+    },
+    // proxy: true,
+  };
 };
+
+
+// this.ctx.throw(404, msg);
+
+
+// title: { type: 'string' },
+// content: { type: 'string' },
+// };
+// // 校验参数
+// ctx.validate(createRule);
+
+
+// 反向代理的意思
