@@ -20,6 +20,8 @@ module.exports = options => {
     stream.end(body);
     ctx.body = stream;
     ctx.set('Content-Encoding', 'gzip');
+    ctx.set('Access-Control-Allow-Origin', '*');
+
   };
 
 };

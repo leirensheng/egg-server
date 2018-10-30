@@ -14,8 +14,16 @@ module.exports = appInfo => {
     robot: {
       ua: [ /Baiduspider/i ],
     },
+    mysql : {
+      client: {
+        host: '127.0.0.1',
+        port: '3306',
+        user: 'test_user',
+        password: 'test_password',
+        database: 'test',
+      },
     // proxy: true,
-  };
+  }
 };
 
 
