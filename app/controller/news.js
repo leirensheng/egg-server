@@ -12,8 +12,9 @@ class NewsController extends Controller {
     this.ctx.body = dataHandled;
   }
   async initNews() {
-
+    this.app.databaseIniting = true;
     const result = await this.ctx.service.news.initNews();
+    this.app.databaseIniting = false;
     console.log('Controller', result);
     this.ctx.body = result;
   }

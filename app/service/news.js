@@ -4,7 +4,7 @@ const Service = require('egg').Service;
 
 class NewsService extends Service {
 
-  async get(startOrder = '', cnt = 10, noHandle = false) {
+  async get(startOrder = '', cnt = 20, noHandle = false) {
     console.log('获取----------', startOrder);
     const res = await this.ctx.curl(`https://api.readhub.cn/topic?lastCursor=${startOrder}&pageSize=${cnt}`, { dataType: 'json' });
     const resData = res.data;
@@ -81,15 +81,26 @@ class NewsService extends Service {
       const gap = Math.floor(oneDayData.length / oneDateLength);
       result.push(...oneDayData.filter((one, index) => index % gap === 0));
     });
+    // 保证获取的第一条总是存到数据库以支持更新
+    if (result.every(one => one.order !== allData.slice(-1)[0].order)) {
+      result.push(...allData.slice(-1));
+    }
     return this.handleData(result);
   }
 
   async initNews(limitDate = '2018-10-15') {
-    let allData = await this.loopGet([], limitDate);
+    let allData = await this.loopGet([], limitDate, '');
     allData.reverse();
     allData = await this.onlyGetSome(allData, 15);
+    return await this.insertNews(allData, true);
+  }
+
+  async test() {
+
+  }
+  async insertNews(arrayData, needDeleteFirst) {
     const relationData = [];
-    const insertArr = allData.map(one => {
+    const insertArr = arrayData.map(one => {
       const obj = {
         order: one.order,
         updateDate: one.updateDate,
@@ -107,8 +118,10 @@ class NewsService extends Service {
       return obj;
     });
     const result = await this.app.mysql.beginTransactionScope(async conn => {
-      await conn.query('truncate table article');
-      await conn.query('truncate table relation');
+      if (needDeleteFirst) {
+        await conn.query('truncate table article');
+        await conn.query('truncate table relation');
+      }
       await conn.insert('article', insertArr);
       await conn.insert('relation', relationData);
       return { success: true };
@@ -116,26 +129,28 @@ class NewsService extends Service {
     return result;
   }
 
-  async test() {
-
-  }
-  async insertNewData(arrayData) {
-
-  }
-
   async checkNews(order) {
     const res = await this.ctx.curl(`https://api.readhub.cn/topic/newCount?latestCursor=${order}`, { dataType: 'json' });
-    console.log(res.data.count);
-    console.log(res.data);
-    if (res.data.count) {
-      console.log('you');
-      const arrayData = await this.get('', res.data.count);
-      this.app.currentOrder = arrayData[0].order;
-      this.insertNewData(arrayData);
+    return res.data;
+  }
 
-    } else {
-      console.log('no');
-    }
+  async update(count) {
+    this.app.databaseIniting = true;
+    const arrayData = await this.get(this.app.currentOrder, count);
+    await this.insertNews(arrayData);
+    this.app.databaseIniting = false;
+  }
+
+  async scheduleDelete() {
+    const targetDate = new Date();
+    targetDate.setDate(new Date().getDate() - 14);
+    this.app.databaseIniting = true;
+    await this.app.mysql.beginTransactionScope(async conn => {
+      await conn.query('delete from article where createDate < ?', [ targetDate ]);
+      await conn.query('delete from relation where publishDate < ?', [ targetDate ]);
+      return { success: true };
+    }, this.ctx);
+    this.app.databaseIniting = false;
   }
 }
 
