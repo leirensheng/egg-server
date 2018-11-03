@@ -6,6 +6,6 @@ module.exports = () => {
     await next();
     const delta = Math.ceil(Date.now() - start);
     ctx.set('X-Response-Time', delta + 'ms');
-    console.log('jin');
   };
 };
+// middleware 中 this 就是 ctx，例如 this.cookies.get('foo')。

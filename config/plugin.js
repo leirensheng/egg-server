@@ -7,4 +7,8 @@ module.exports = {
     enabled: true,
     package: 'egg-mysql',
   },
+  proxyagent: {
+    enabled: true,
+    package: 'egg-development-proxyagent',
+  },
 };

@@ -14,27 +14,24 @@ module.exports = appInfo => {
     robot: {
       ua: [ /Baiduspider/i ],
     },
-    mysql : {
+    mysql: {
       client: {
         host: '127.0.0.1',
         port: '3306',
-        user: 'test_user',
-        password: 'test_password',
-        database: 'test',
+        user: 'root',
+        password: '',
+        database: 'web',
       },
-    // proxy: true,
-  }
+      proxy: true,
+    },
+  };
 };
 
-
 // this.ctx.throw(404, msg);
+// ctx.logger.debug('debug info');
+// ctx.logger.info('some request data: %j', ctx.request.body);
+// ctx.logger.warn('WARNNING!!!!');
 
-
-// title: { type: 'string' },
-// content: { type: 'string' },
-// };
-// // 校验参数
-// ctx.validate(createRule);
-
-
-// 反向代理的意思
+// // 错误日志记录，直接会将错误日志完整堆栈信息记录下来，并且输出到 errorLog 中
+// // 为了保证异常可追踪，必须保证所有抛出的异常都是 Error 类型，因为只有 Error 类型才会带上堆栈信息，定位到问题。
+// ctx.logger.error(new Error('whoops'));

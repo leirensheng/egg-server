@@ -7,4 +7,7 @@ module.exports = app => {
   const { router, controller } = app;
   router.get('/', controller.home.index);
   router.get('/getNews', controller.news.get);
+  router.get('/initNews', controller.news.initNews);
+  router.get('/test', controller.news.test);
+
 };
