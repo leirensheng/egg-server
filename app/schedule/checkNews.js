@@ -15,6 +15,7 @@ module.exports = {
           ctx.app.currentOrder = row.order;
         }
       } else {
+        console.log(ctx.app.currentOrder);
         const { count } = await ctx.service.news.checkNews(ctx.app.currentOrder);
         console.log(count);
 

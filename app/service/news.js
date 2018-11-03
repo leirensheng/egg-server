@@ -136,7 +136,9 @@ class NewsService extends Service {
 
   async update(count) {
     this.app.databaseIniting = true;
-    const arrayData = await this.get(this.app.currentOrder, count);
+    const arrayData = await this.get('', count);
+    this.app.currentOrder = arrayData[0].order;
+    arrayData.reverse();
     await this.insertNews(arrayData);
     this.app.databaseIniting = false;
   }
@@ -151,6 +153,47 @@ class NewsService extends Service {
       return { success: true };
     }, this.ctx);
     this.app.databaseIniting = false;
+  }
+
+  async formatNews(data) {
+    const articleIds = [ ... new Set(data.map(one => one.id)) ];
+    return articleIds.map(one => {
+      const arr = data.filter(oneRow => oneRow.id === one);
+      arr[0].relations = arr.map(one => ({
+        title: one.relationTitle,
+        url: one.url,
+        mobileUrl: one.mobileUrl,
+        source: one.source,
+      }));
+      // arr[0].date = arr[0].createDate.split('T')[0];
+      return arr[0];
+    });
+  }
+
+  async getNewsFromDb(length, lastId) {
+    let result = [];
+    if (lastId) {
+      const sql =
+      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source from
+       (select * from article  where id < ? order by id desc limit ?) a 
+       join
+       relation b
+       on a.oldId=b.articleId
+       order by a.id desc
+      `;
+      result = await this.app.mysql.query(sql, [ lastId, length ]);
+    } else {
+      const sql =
+      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source from
+      (select * from article order by id desc limit ?) a 
+      join
+      relation b
+      on a.oldId=b.articleId
+      order by a.id desc
+      `;
+      result = await this.app.mysql.query(sql, [ length ]);
+    }
+    return this.formatNews(result);
   }
 }
 

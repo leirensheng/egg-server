@@ -4,11 +4,7 @@ const Controller = require('egg').Controller;
 
 class NewsController extends Controller {
   async get() {
-    const dataHandled = await this.ctx.service.news.getNewsFromNet();
-    this.ctx.logger.debug('a');
-    this.ctx.logger.info('info');
-    // this.ctx.logger.error(new Error('e'));
-
+    const dataHandled = await this.ctx.service.news.getNewsFromDb(this.ctx.query.length - 0, this.ctx.query.lastId - 0);
     this.ctx.body = dataHandled;
   }
   async initNews() {
