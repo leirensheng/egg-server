@@ -21,7 +21,7 @@ module.exports = {
 
         if (count) {
           // 发现有更新，cache设置为过期状态
-          this.app.isNewsCacheExpired = true;
+          ctx.app.isNewsCacheExpired = true;
           await ctx.service.news.update(count);
         }
       }

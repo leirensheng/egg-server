@@ -191,7 +191,7 @@ class NewsService extends Service {
       const sql =
         `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%e %T') from
         (select * from article order by id desc limit ?) a 
-        join
+        left join
         relation b
         on a.oldId=b.articleId
         order by a.id desc
