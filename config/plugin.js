@@ -11,4 +11,9 @@ module.exports = {
     enabled: true,
     package: 'egg-development-proxyagent',
   },
+  static: {
+    maxAge: 31536000,
+    prefix: '/public/',
+    enabled: true,
+  },
 };

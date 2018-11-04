@@ -8,6 +8,7 @@
     "egg-development-proxyagent": "^1.0.0",
     "egg-mysql": "^3.0.0",
     "egg-scripts": "^2.5.0",
+    "egg-static": "^2.1.1",
     "koa-is-json": "^1.0.0",
     "npm": "^6.4.1",
     "zlib": "^1.0.5"
