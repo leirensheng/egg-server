@@ -48,7 +48,6 @@ class NewsService extends Service {
 
   async getNewsFromNet() {
     const arrayData = await this.get();
-    console.log(arrayData);
     const dateCategories = [ ...new Set(arrayData.map(one => one.date).sort((a, b) => a - b)) ];
 
     return dateCategories.map(oneDate => {
@@ -184,7 +183,7 @@ class NewsService extends Service {
       result = await this.app.mysql.query(sql, [ lastId, length ]);
     } else {
       const sql =
-      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source from
+      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%e %T') from
       (select * from article order by id desc limit ?) a 
       join
       relation b

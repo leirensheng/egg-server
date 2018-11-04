@@ -6,7 +6,6 @@ const zlib = require('zlib');
 module.exports = options => {
   return async function gzip(ctx, next) {
     await next();
-    console.log('gzip0', ctx.body);
 
     // 后续中间件执行完成后将响应体转换成 gzip
     let body = ctx.body;
@@ -15,7 +14,6 @@ module.exports = options => {
       return;
     }
     if (isJSON(body)) {
-      console.log('isjson');
       body = JSON.stringify(body);
     }
 
