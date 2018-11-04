@@ -171,6 +171,7 @@ class NewsService extends Service {
 
   async getNewsFromDb(length, lastId) {
     let result = [];
+    let resultHandled;
     if (lastId) {
       const sql =
       `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source from
@@ -181,18 +182,28 @@ class NewsService extends Service {
        order by a.id desc
       `;
       result = await this.app.mysql.query(sql, [ lastId, length ]);
-    } else {
+    } else { // 没有lastId 说明是进入首页加载的，可以从缓存取
+      if (this.app.newsCache && !this.app.isNewsCacheExpired) {
+        console.log('cache');
+        return this.app.newsCache;
+      }
+      console.log('chaxu');
       const sql =
-      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%e %T') from
-      (select * from article order by id desc limit ?) a 
-      join
-      relation b
-      on a.oldId=b.articleId
-      order by a.id desc
-      `;
+        `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%e %T') from
+        (select * from article order by id desc limit ?) a 
+        join
+        relation b
+        on a.oldId=b.articleId
+        order by a.id desc
+        `;
       result = await this.app.mysql.query(sql, [ length ]);
+      // 从数据库中拿到信息，cache最新，设置为不过期
+      resultHandled = this.formatNews(result);
+      this.app.newsCache = resultHandled;
+      this.app.isNewsCacheExpired = false;
+
     }
-    return this.formatNews(result);
+    return resultHandled || this.formatNews(result);
   }
 }
 

@@ -20,6 +20,8 @@ module.exports = {
         console.log(count);
 
         if (count) {
+          // 发现有更新，cache设置为过期状态
+          this.app.isNewsCacheExpired = true;
           await ctx.service.news.update(count);
         }
       }
