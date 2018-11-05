@@ -1,6 +1,6 @@
 'use strict';
 const Service = require('egg').Service;
-
+const moment = require('moment');
 
 class NewsService extends Service {
 
@@ -61,8 +61,8 @@ class NewsService extends Service {
   }
 
 
-  async loopGet(allData, limitDate, startOrder) {
-    const arrayData = await this.get(startOrder, 20, true);
+  async loopGet(allData, limitDate, startOrder, step) {
+    const arrayData = await this.get(startOrder, step || 20, true);
     allData = [ ...allData, ...arrayData ];
     const oldestDay = arrayData.slice(-1)[0].createdAt.split('T')[0];
     if (oldestDay === limitDate) {
@@ -87,17 +87,26 @@ class NewsService extends Service {
     return this.handleData(result);
   }
 
-  async initNews(limitDate = '2018-10-15') {
-    let allData = await this.loopGet([], limitDate, '');
-    allData.reverse();
+  async initNews(limitDate) {
+    let allData = await this.getNewsRecently(limitDate, 20);
     allData = await this.onlyGetSome(allData, 15);
-    return await this.insertNews(allData, true);
+    return await this.insertNews(allData, 1);
+  }
+
+  async getNewsRecently(limitDate, step) {
+    const defaultDate = moment().subtract(15, 'days').format('YYYY-MM-DD');
+    const data = await this.loopGet([], limitDate || defaultDate, '', step);
+    data.reverse();
+    return data;
   }
 
   async test() {
 
   }
-  async insertNews(arrayData, needDeleteFirst) {
+
+  // 插入的顺序arrayData 第一个是距离现在最远的
+  // status为1时为初始化，删除所有数据，2 为删除当天数据
+  async insertNews(arrayData, status) {
     const relationData = [];
     const insertArr = arrayData.map(one => {
       const obj = {
@@ -117,9 +126,16 @@ class NewsService extends Service {
       return obj;
     });
     const result = await this.app.mysql.beginTransactionScope(async conn => {
-      if (needDeleteFirst) {
+      if (status === 1) {
         await conn.query('truncate table article');
         await conn.query('truncate table relation');
+      } else if (status === 2) {
+        console.log('正清楚今天');
+        const dateStr = moment().format('YYYY-MM-DD');
+        const sql = `delete from article where createDate >= "${dateStr}"`;
+        // const sql2 = `delete from relation where publishDate >= "${dateStr}"`;
+        // todo:删除
+        await conn.query(sql);
       }
       await conn.insert('article', insertArr);
       await conn.insert('relation', relationData);
@@ -132,14 +148,26 @@ class NewsService extends Service {
     const res = await this.ctx.curl(`https://api.readhub.cn/topic/newCount?latestCursor=${order}`, { dataType: 'json' });
     return res.data;
   }
-
+  // 获取最新的
   async update(count) {
     this.app.databaseIniting = true;
     const arrayData = await this.get('', count);
     this.app.currentOrder = arrayData[0].order;
     arrayData.reverse();
-    await this.insertNews(arrayData);
+    try {
+      await this.insertNews(arrayData);
+    } catch (e) {
+      if (e.code === 'ER_DUP_ENTRY') {
+        console.log('出错');
+        await this.refreshToday();
+      }
+    }
     this.app.databaseIniting = false;
+  }
+
+  async refreshToday() {
+    const arrayData = await this.getNewsRecently(moment().subtract(1, 'day').format('YYYY-MM-DD'), 1);
+    return await this.insertNews(arrayData, 2);
   }
 
   async scheduleDelete() {
