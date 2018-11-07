@@ -10,19 +10,23 @@ module.exports = {
   async task(ctx) {
     if (!ctx.app.databaseIniting) {
       if (!ctx.app.currentOrder) {
+        ctx.app.databaseIniting = true;
         const [ row ] = await ctx.app.mysql.query('select `order` from article order by `id` desc limit 1');
         if (row && row.order) {
           ctx.app.currentOrder = row.order;
         }
+        ctx.app.databaseIniting = false;
       } else {
         console.log(ctx.app.currentOrder);
         const { count } = await ctx.service.news.checkNews(ctx.app.currentOrder);
-        console.log(count);
+        console.log('--find----------', count);
 
         if (count) {
           // 发现有更新，cache设置为过期状态
           ctx.app.isNewsCacheExpired = true;
+          ctx.app.databaseIniting = true;
           await ctx.service.news.update(count);
+          ctx.app.databaseIniting = false;
         }
       }
     }

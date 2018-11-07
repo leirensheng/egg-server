@@ -3,6 +3,8 @@
 module.exports = appInfo => {
   return {
     keys: appInfo.name + '_1540471238491_9420',
+    countPerDay: 15, // 每天15条
+    daysBefore: 15, // 拿知道出现15条前的数据
     middleware: [ 'robot', 'responseTime', 'gzip' ],
     gzip: {
       threshold: 1024,

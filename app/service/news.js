@@ -67,9 +67,13 @@ class NewsService extends Service {
     allData = [ ...allData, ...arrayData ];
     const oldestDay = arrayData.slice(-1)[0].createdAt.split('T')[0];
     if (oldestDay === limitDate) {
+      // 选择到限定时间的后一天，例如limitDate为6号，其实是获取7号开始的所有
+      if (step === 1) {
+        allData.pop();
+      }
       return allData;
     }
-    return await this.loopGet(allData, limitDate, arrayData.slice(-1)[0].order);
+    return await this.loopGet(allData, limitDate, arrayData.slice(-1)[0].order, step);
   }
 
   async onlyGetSome(allData, oneDateLength) {
@@ -78,8 +82,8 @@ class NewsService extends Service {
     const result = [];
     dates.forEach(oneDate => {
       const oneDayData = allData.filter(one => one.date === oneDate);
-      const gap = Math.floor(oneDayData.length / oneDateLength);
-      result.push(...oneDayData.filter((one, index) => index % gap === 0));
+      const randomData = oneDayData.sort(() => Math.random() - 0.5).slice(0, oneDateLength).sort((a, b) => a.order - b.order);
+      result.push(...randomData);
     });
     // 保证获取的第一条总是存到数据库以支持更新
     if (result.every(one => one.order !== allData.slice(-1)[0].order)) {
@@ -90,12 +94,12 @@ class NewsService extends Service {
 
   async initNews(limitDate) {
     let allData = await this.getNewsRecently(limitDate, 20);
-    allData = await this.onlyGetSome(allData, 15);
+    allData = await this.onlyGetSome(allData, this.config.countPerDay);
     return await this.insertNews(allData, 1);
   }
 
   async getNewsRecently(limitDate, step) {
-    const defaultDate = moment().subtract(15, 'days').format('YYYY-MM-DD');
+    const defaultDate = moment().subtract(this.config.daysBefore, 'days').format('YYYY-MM-DD');
     const data = await this.loopGet([], limitDate || defaultDate, '', step);
     data.reverse();
     return data;
@@ -108,7 +112,6 @@ class NewsService extends Service {
   // 插入的顺序arrayData 第一个是距离现在最远的
   // status为1时为初始化，删除所有数据，2 为删除当天数据,並且更新
   async insertNews(arrayData, status) {
-    this.app.databaseIniting = true;
     const relationData = [];
     const insertArr = arrayData.map(one => {
       const obj = {
@@ -133,18 +136,17 @@ class NewsService extends Service {
         await conn.query('truncate table relation');
       } else if (status === 2) {
         const dateStr = moment().format('YYYY-MM-DD');
-        const sql = 'delete from article where createDate >= ?';
-        const sql2 = 'delete  a from  relation a  join ( select * from article y where createDate >= ?)b on b.oldid=a.articleId';
+        const sql = 'delete from article where createDate like ?';
+        const sql2 = 'delete  a from  relation a  join ( select * from article y where createDate like ?)b on b.oldid=a.articleId';
 
         // todo: 凌晨处理昨天的
-        await conn.query(sql2, [ dateStr ]);
-        await conn.query(sql, [ dateStr ]);
+        await conn.query(sql2, [ `%${dateStr}%` ]);
+        await conn.query(sql, [ `%${dateStr}%` ]);
 
       }
       await conn.insert('article', insertArr);
       await conn.insert('relation', relationData);
 
-      this.app.databaseIniting = false;
       this.app.currentOrder = arrayData.slice(-1)[0].order;
       return { success: true };
     }, this.ctx);
@@ -183,13 +185,11 @@ class NewsService extends Service {
   async scheduleDelete() {
     const targetDate = new Date();
     targetDate.setDate(new Date().getDate() - 14);
-    this.app.databaseIniting = true;
     await this.app.mysql.beginTransactionScope(async conn => {
       await conn.query('delete from article where createDate < ?', [ targetDate ]);
       await conn.query('delete from relation where publishDate < ?', [ targetDate ]);
       return { success: true };
     }, this.ctx);
-    this.app.databaseIniting = false;
   }
 
   async formatNews(data) {
@@ -242,6 +242,30 @@ class NewsService extends Service {
 
     }
     return resultHandled || this.formatNews(result);
+  }
+
+  async handleYesterday() {
+    const dateStr = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    return await this.app.mysql.beginTransactionScope(async conn => {
+      const sql = `select a.id,b.id as relationId from
+      (select * from article where createDate like ?) a 
+      left join
+      relation b
+      on a.oldId = b.articleId`;
+      const result = await conn.query(sql, [ `%${dateStr}%` ]);
+      console.log(result.length);
+
+
+      const deleteCnt = new Set(result.map(one => one.id)).size - 10;
+      if (deleteCnt <= 0) {
+        return { noNeedDelete: true };
+      }
+      console.log(deleteCnt);
+      const target = result.sort(() => Math.random() - 0.5).slice(0, deleteCnt);
+      await conn.query('delete from article where id in (?)', [ target.map(one => one.id) ]);
+      await conn.query('delete from relation where id in (?)', [ target.map(one => one.relationId) ]);
+      return { success: true };
+    }, this.ctx);
   }
 }
 

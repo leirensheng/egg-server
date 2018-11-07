@@ -25,7 +25,7 @@ class NewsController extends Controller {
   }
 
   async test() {
-    this.service.news.refreshToday();
+    this.service.news.handleYesterday();
   }
 }
 
