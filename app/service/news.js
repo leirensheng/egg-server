@@ -17,6 +17,7 @@ class NewsService extends Service {
     return [];
   }
 
+  // 加上點讚數
   async handleData(data) {
     return data.map(one => {
       return {
@@ -105,8 +106,9 @@ class NewsService extends Service {
   }
 
   // 插入的顺序arrayData 第一个是距离现在最远的
-  // status为1时为初始化，删除所有数据，2 为删除当天数据
+  // status为1时为初始化，删除所有数据，2 为删除当天数据,並且更新
   async insertNews(arrayData, status) {
+    this.app.databaseIniting = true;
     const relationData = [];
     const insertArr = arrayData.map(one => {
       const obj = {
@@ -130,15 +132,20 @@ class NewsService extends Service {
         await conn.query('truncate table article');
         await conn.query('truncate table relation');
       } else if (status === 2) {
-        console.log('正清楚今天');
         const dateStr = moment().format('YYYY-MM-DD');
-        const sql = `delete from article where createDate >= "${dateStr}"`;
-        // const sql2 = `delete from relation where publishDate >= "${dateStr}"`;
-        // todo:删除
-        await conn.query(sql);
+        const sql = 'delete from article where createDate >= ?';
+        const sql2 = 'delete  a from  relation a  join ( select * from article y where createDate >= ?)b on b.oldid=a.articleId';
+
+        // todo: 凌晨处理昨天的
+        await conn.query(sql2, [ dateStr ]);
+        await conn.query(sql, [ dateStr ]);
+
       }
       await conn.insert('article', insertArr);
       await conn.insert('relation', relationData);
+
+      this.app.databaseIniting = false;
+      this.app.currentOrder = arrayData.slice(-1)[0].order;
       return { success: true };
     }, this.ctx);
     return result;
@@ -148,26 +155,29 @@ class NewsService extends Service {
     const res = await this.ctx.curl(`https://api.readhub.cn/topic/newCount?latestCursor=${order}`, { dataType: 'json' });
     return res.data;
   }
-  // 获取最新的
+  // 获取最新的,並且修改
   async update(count) {
-    this.app.databaseIniting = true;
     const arrayData = await this.get('', count);
-    this.app.currentOrder = arrayData[0].order;
     arrayData.reverse();
     try {
       await this.insertNews(arrayData);
     } catch (e) {
       if (e.code === 'ER_DUP_ENTRY') {
-        console.log('出错');
-        await this.refreshToday();
+        this.ctx.logger.info('order Error,refresh...');
+        try {
+          await this.refreshToday();
+          this.ctx.logger.info({ event: 'refresh', status: 'success' });
+        } catch (e) {
+          this.ctx.logger.info({ event: 'refresh', status: 'fail', err: e });
+        }
       }
     }
-    this.app.databaseIniting = false;
   }
 
   async refreshToday() {
     const arrayData = await this.getNewsRecently(moment().subtract(1, 'day').format('YYYY-MM-DD'), 1);
-    return await this.insertNews(arrayData, 2);
+    const data = await this.handleData(arrayData);
+    return await this.insertNews(data, 2);
   }
 
   async scheduleDelete() {
@@ -192,7 +202,6 @@ class NewsService extends Service {
         mobileUrl: one.mobileUrl,
         source: one.source,
       }));
-      // arr[0].date = arr[0].createDate.split('T')[0];
       return arr[0];
     });
   }
@@ -202,7 +211,7 @@ class NewsService extends Service {
     let resultHandled;
     if (lastId) {
       const sql =
-      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source from
+      `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%d %T')realDate from
        (select * from article  where id < ? order by id desc limit ?) a 
        join
        relation b
@@ -212,12 +221,13 @@ class NewsService extends Service {
       result = await this.app.mysql.query(sql, [ lastId, length ]);
     } else { // 没有lastId 说明是进入首页加载的，可以从缓存取
       if (this.app.newsCache && !this.app.isNewsCacheExpired) {
+        this.logger();
         console.log('cache');
         return this.app.newsCache;
       }
       console.log('chaxu');
       const sql =
-        `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%e %T') from
+        `select a.*,b.title as relationTitle,b.url,b.mobileUrl,b.source,date_format(a.createDate, '%Y-%c-%d %T')realDate from
         (select * from article order by id desc limit ?) a 
         left join
         relation b
