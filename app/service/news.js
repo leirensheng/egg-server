@@ -221,7 +221,6 @@ class NewsService extends Service {
       result = await this.app.mysql.query(sql, [ lastId, length ]);
     } else { // 没有lastId 说明是进入首页加载的，可以从缓存取
       if (this.app.newsCache && !this.app.isNewsCacheExpired) {
-        this.logger();
         console.log('cache');
         return this.app.newsCache;
       }
