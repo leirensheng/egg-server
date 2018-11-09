@@ -8,9 +8,9 @@ module.exports = {
   },
   async task(ctx) {
     if (!ctx.app.databaseIniting) {
-      this.app.databaseIniting = true;
+      ctx.app.databaseIniting = true;
       await ctx.service.news.scheduleDelete();
-      this.app.databaseIniting = false;
+      ctx.app.databaseIniting = false;
     }
   },
 };

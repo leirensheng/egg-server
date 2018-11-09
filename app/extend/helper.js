@@ -13,6 +13,9 @@ module.exports = {
       default: return '';
     }
   },
+  isEnglish(text) {
+    return /^[a-zA-Z]+$/.test(text);
+  },
 };
 
 // todo: session   cookie
