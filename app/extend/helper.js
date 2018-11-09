@@ -24,21 +24,21 @@ module.exports = {
   isEnglish(text) {
     return /^[a-zA-Z]+$/.test(text);
   },
-  getClientIp(req) {
+  getIp(ctx) {
     let ipAddress;
-    const forwardedIpsStr = req.header('x-forwarded-for');
+    const forwardedIpsStr = ctx.headers['x-forwarded-for'];
     if (forwardedIpsStr) {
       const forwardedIps = forwardedIpsStr.split(',');
       ipAddress = forwardedIps[0];
     }
 
     if (!ipAddress) {
-      ipAddress = req.connection.remoteAddress || '';
+      ipAddress = ctx.req.connection.remoteAddress || '';
     }
     return ipAddress;
   },
 
-  parseUa() {
+  parseUa(ua) {
     const illegalDevicetype = [ 'Nexus 5X Build/MMB29P' ];
     const specialDevicetype = {
       'HUAWEI TIT-AL00 Build/HUAWEI TIT-AL00': 'HUAWEI TIT-AL00 Build/HUAWEITIT-AL00',
@@ -272,16 +272,16 @@ module.exports = {
       };
       if (typeof ua === 'string') {
         for (const index in keywords) {
-          if (ua.indexOf(index) != -1) {
+          if (ua.indexOf(index) !== -1) {
             return keywords[index];
           }
         }
 
-        if (ua.indexOf('Mac') != -1) {
+        if (ua.indexOf('Mac') !== -1) {
           return 'Safari';
         }
 
-        if (ua.indexOf('Android') != -1) {
+        if (ua.indexOf('Android') !== -1) {
           return 'System';
         }
       }
@@ -332,7 +332,7 @@ module.exports = {
             // 5.Mozilla/5.0 (Linux; Android 4.2.3.2; 8190Q Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/37.0.0.0 Mobile MQQBrowser/6.8 TBS/036887 Safari/537.36 MicroMessenger/6.3.31.940 NetType/WIFI Language/zh_CN    =>Android 4.2.3.2
             // 6.Mozilla/5.0 (Linux; U; Android 3.2.0-FL2-20180726.9015; zh-cn; DOOV V18 Build/LMY47D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 Tanggula/0.1.0 WebLight/1.4.1 oc_AppSearch/3.5.0.pb =>Android 3.2.0-FL2-20180726.9015
             // 7.Dalvik/v3.3.117 Compatible (TVM xx; YunOS 3.0; Linux; U; Android 5.1 Compatible; Bird L7 Build/KTU84P)  =>Android 5.1 Compatible
-            if (/Android(\s\d|$)/.test(osAndType[i]) && osAndType[i].indexOf('Build') == -1) {
+            if (/Android(\s\d|$)/.test(osAndType[i]) && osAndType[i].indexOf('Build') === -1) {
               let system = trim(osAndType[i]);
               system = system.replace(/(\s)?(en-us)|(en-gb)|(zh-hk)|(zh-cn)|(zh-tw)$/, '');
               system = system.replace(/(\d\.\d\.\d)\.\d$/, '$1');
@@ -344,14 +344,14 @@ module.exports = {
               parserData.system = system;
             } else if (osAndType[i].indexOf('Build') !== -1) {
               parserData.devicetype = trim(osAndType[i]);
-              if (parserData.devicetype.indexOf('MZ-') == 0) {
+              if (parserData.devicetype.indexOf('MZ-') === 0) {
                 parserData.devicetype = parserData.devicetype.substring(3);
-              } else if (parserData.devicetype.indexOf('SAMSUNG ') == 0) {
+              } else if (parserData.devicetype.indexOf('SAMSUNG ') === 0) {
                 parserData.devicetype = parserData.devicetype.substring(8);
-              } else if (ua.indexOf('GIONEE-') != -1) {
-                const shortDevicetype = shortDevicetypeArr.find(one => one == parserData.devicetype);
+              } else if (ua.indexOf('GIONEE-') !== -1) {
+                const shortDevicetype = shortDevicetypeArr.find(one => one === parserData.devicetype);
                 if (shortDevicetype) {
-                  var device = ua.split(' ').find(one => one.indexOf('GIONEE') != -1);
+                  let device = ua.split(' ').find(one => one.indexOf('GIONEE') !== -1);
                   device = device.split('-')[1].split('/')[0];
                   parserData.devicetype = device + ' ' + shortDevicetype;
                 }
@@ -359,13 +359,13 @@ module.exports = {
               parserData.devicetype in specialDevicetype && (parserData.devicetype = specialDevicetype[parserData.devicetype]);
             }
           }
-          if (parserData.devicetype == 'other') {
+          if (parserData.devicetype === 'other') {
             if (ua in specialUa) {
               parserData.devicetype = specialUa[ua];
-            } else if (ua.indexOf('UCWEB') == 0) {
-              var device = osAndType.slice(-1)[0];
+            } else if (ua.indexOf('UCWEB') === 0) {
+              let device = osAndType.slice(-1)[0];
               device = trim(device);
-              if (device.indexOf('HUAWEI ') == 0) {
+              if (device.indexOf('HUAWEI ') === 0) {
                 device = device.split('HUAWEI ')[1];
                 parserData.devicetype = `HUAWEI ${device} Build/HUAWEI${device}`;
               } else {
@@ -373,9 +373,9 @@ module.exports = {
               }
               // 例子：ua 为 'UCWEB/2.0 (Linux; U; Android 8.0.0; zh-CN; WAS-AL00) U2/1.0.0 UCBrowser/10.8.7.620 U2/1.0.0 Mobile', 修改为devicetype修改为'WAS-AL00 Build/HUAWEIWAS-AL00'
               // ua 为 'UCWEB/2.0 (Linux; U; Android 7.0; zh-CN; HUAWEI NXT-AL10) U2/1.0.0 UCBrowser/10.8.7.620 U2/1.0.0 Mobile', 修改为 'HUAWEI NXT-AL10 Build/HUAWEINXT-AL10'
-            } else if (osAndType.slice(-1)[0].indexOf('LNV-') != -1) {
+            } else if (osAndType.slice(-1)[0].indexOf('LNV-') !== -1) {
               let temp = osAndType.slice(-1)[0].split('LNV-')[1];
-              if (temp.indexOf('/') != -1) {
+              if (temp.indexOf('/') !== -1) {
                 temp = temp.split('/');
                 parserData.devicetype = temp[0] + ' Build/' + temp[1];
               }
@@ -388,7 +388,7 @@ module.exports = {
               parserData.system = trim(osAndType[i]);
             } else if ((osAndType[i].indexOf('iPad') !== -1) || (osAndType[i].indexOf('iPhone') !== -1)) {
               parserData.devicetype = trim(osAndType[i]);
-              if (parserData.source == 'qqBrowser' && parserData.devicetype.indexOf('iPhone') !== -1) {
+              if (parserData.source === 'qqBrowser' && parserData.devicetype.indexOf('iPhone') !== -1) {
                 parserData.devicetype = 'iPhone';
               }
             }
