@@ -4,7 +4,7 @@ module.exports = {
   schedule: {
     type: 'worker', // 指定所有的 worker 都需要执行
     // 每天0点执行
-    cron: '0 0 0 * * *',
+    cron: '0 20 0 * * *',
   },
   async task(ctx) {
     if (!ctx.app.databaseIniting) {
@@ -15,6 +15,7 @@ module.exports = {
       } catch (e) {
         ctx.logger.info({ event: 'handleYesterday', err: e });
       }
+      ctx.app.isNewsCacheExpired = true;
       ctx.app.databaseIniting = false;
     }
   },

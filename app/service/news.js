@@ -255,7 +255,7 @@ class NewsService extends Service {
       console.log(result.length);
 
 
-      const deleteCnt = new Set(result.map(one => one.id)).size - 10;
+      const deleteCnt = new Set(result.map(one => one.id)).size - this.config.countPerDay;
       if (deleteCnt <= 0) {
         return { noNeedDelete: true };
       }

@@ -3,7 +3,7 @@
 module.exports = {
   schedule: {
     type: 'worker', // 指定所有的 worker 都需要执行
-    // 每天00:01执行
+    // 每天00:06执行
     cron: '0 1 0 * * *',
   },
   async task(ctx) {
