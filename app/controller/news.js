@@ -4,6 +4,11 @@ const Controller = require('egg').Controller;
 
 class NewsController extends Controller {
   async get() {
+    // 进入首页加载时候就记录一次
+    if (!this.ctx.query.lastId) {
+      this.logger.info(this.ctx.helper.getIp());
+      this.logger.info(this.ctx.helper.parserUa(this.ctx.headers['user-agent']));
+    }
     const dataHandled = await this.ctx.service.news.getNewsFromDb(this.ctx.query.length - 0, this.ctx.query.lastId - 0);
     this.ctx.body = dataHandled;
   }
