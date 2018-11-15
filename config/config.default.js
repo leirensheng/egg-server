@@ -5,7 +5,7 @@ module.exports = appInfo => {
     keys: appInfo.name + '_1540471238491_9420',
     countPerDay: 15, // 每天15条
     daysBefore: 15, // 拿知道出现15条前的数据
-    middleware: [ 'robot', 'responseTime', 'gzip' ],
+    middleware: [ 'robot', 'responseTime', 'gzip', 'cross' ],
     gzip: {
       threshold: 1024,
     },
@@ -21,7 +21,7 @@ module.exports = appInfo => {
         host: '127.0.0.1',
         port: '3306',
         user: 'root',
-        password: '',
+        password: 'Abc123456',
         database: 'web',
       },
       proxy: true,
