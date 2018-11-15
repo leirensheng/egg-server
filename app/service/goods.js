@@ -46,7 +46,7 @@ class NewsService extends Service {
         mall: one.article_mall,
         priceDesc: one.article_price,
         title: one.article_title,
-        pic: `http://m.ixcut.com:7001/${date}` + img,
+        pic: `${this.config.domain}:7001/public/${date}/` + img,
         url: one.article_mall_url,
       };
     }).reverse();
@@ -54,12 +54,15 @@ class NewsService extends Service {
 
   async getGoodsFromDb(length = 10, lastId) {
     let sql;
+    let params;
     if (lastId) {
       sql = 'select * from goods where id<? order by id desc limit ? ';
+      params = [ lastId, length ];
     } else {
       sql = 'select * from goods  order by id desc limit ? ';
+      params = [ length ];
     }
-    const result = await this.app.mysql.query(sql, [ length ]);
+    const result = await this.app.mysql.query(sql, params);
     return {
       data: result,
       length: result && result.length,
