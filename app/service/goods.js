@@ -7,9 +7,12 @@ const path = require('path');
 
 class NewsService extends Service {
   async initGoods() {
-    const data = await this.getGoods();
-    const result = await this.insertGoods(data);
-    console.log(result);
+    console.log();
+    const data = await this.loopGet([], moment().subtract(1, 'day').unix(), moment().unix());
+    // todo: 保证图片和数据库一致性
+    const dataHandled = await this.handleData(data);
+    dataHandled.reverse();
+    return await this.insertGoods(dataHandled);
   }
 
   async insertGoods(arrayData, status = 1) {
@@ -19,24 +22,45 @@ class NewsService extends Service {
       }
       await conn.insert('goods', arrayData);
       // this.app.currentOrder = arrayData.slice(-1)[0].order;
-      return { success: true };
+      return {
+        success: true,
+      };
     }, this.ctx);
     return result;
-
-
   }
 
-  async getGoods() {
-    const { data } = await this.ctx.curl('https://m.smzdm.com/ajax_home_list_show?timesort=' + Date.now(), { dataType: 'json' });
+  async getGoods(starTime = Date.now(), noHandled = false) {
+    const {
+      data,
+    } = await this.ctx.curl('https://www.smzdm.com/youhui/json_more?timesort=' + starTime, {
+      dataType: 'json',
+      timeout: 8000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Mobile Safari/537.36',
+        Referer: 'https://www.smzdm.com',
+      },
+    });
+    const resData = data.filter(one => [ '天猫', '淘宝', '天猫精选', '聚划算' ].includes(one.article_mall));
+    return noHandled ? resData : this.handleData(resData);
+  }
+
+  async handleData(data) {
     const date = moment().format('YYYYMMDD');
     const pathForPic = path.resolve(__dirname, `../public/${date}`);
-    // todo:定期删图片
+    // todo:定期删图片, 添加时删除掉？
     if (!fs.existsSync(pathForPic)) {
       fs.mkdirSync(pathForPic);
     }
-    return data.data.filter(one => one.article_mall).map(one => {
+
+
+    return data.map(one => {
       const img = one.article_pic.split('/').slice(-1)[0];
       this.ctx.curl(one.article_pic, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Mobile Safari/537.36',
+          Referer: 'https://www.smzdm.com',
+          timeout: 10000,
+        },
         writeStream: fs.createWriteStream(path.join(pathForPic, img)),
       });
       return {
@@ -49,7 +73,17 @@ class NewsService extends Service {
         pic: `${this.config.domain}:7001/public/${date}/` + img,
         url: one.article_mall_url,
       };
-    }).reverse();
+    });
+  }
+
+  async loopGet(allData, limitTime, startTime) {
+    const arrayData = await this.getGoods(startTime, true);
+    allData = [ ...allData, ...arrayData ];
+    const tempLastTime = arrayData.slice(-1)[0].timesort;
+    if (limitTime > tempLastTime) {
+      return allData;
+    }
+    return await this.loopGet(allData, limitTime, tempLastTime);
   }
 
   async getGoodsFromDb(length = 10, lastId) {
@@ -67,7 +101,6 @@ class NewsService extends Service {
       data: result,
       length: result && result.length,
     };
-    console.log(result);
   }
 }
 
