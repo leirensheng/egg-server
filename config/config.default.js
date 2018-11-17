@@ -4,7 +4,7 @@ module.exports = appInfo => {
   return {
     keys: appInfo.name + '_1540471238491_9420',
     // domain: 'http://127.0.0.1',
-    domain: 'http://m.ixcut.com',
+    domain: 'http://120.78.173.191',
     countPerDay: 15, // 每天15条
     daysBefore: 15, // 拿知道出现15条前的数据
     middleware: [ 'robot', 'responseTime', 'gzip', 'cross' ],

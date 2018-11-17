@@ -7,9 +7,8 @@ const path = require('path');
 
 class NewsService extends Service {
   async initGoods() {
-    console.log();
     const data = await this.loopGet([], moment().subtract(1, 'day').unix(), moment().unix());
-    // todo: 保证图片和数据库一致性
+    // todo: 保证图片和数据库一致性, 错误重试机制
     const dataHandled = await this.handleData(data);
     dataHandled.reverse();
     return await this.insertGoods(dataHandled);
@@ -40,8 +39,13 @@ class NewsService extends Service {
         Referer: 'https://www.smzdm.com',
       },
     });
-    const resData = data.filter(one => [ '天猫', '淘宝', '天猫精选', '聚划算' ].includes(one.article_mall));
-    return noHandled ? resData : this.handleData(resData);
+    console.log('https://www.smzdm.com/youhui/json_more?timesort=' + starTime);
+    const resData = data.filter(one => one && [ '天猫', '淘宝', '天猫精选', '聚划算' ].includes(one.article_mall));
+
+    return {
+      curLastTime: data.slice(-1)[0].timesort,
+      data: noHandled ? resData : this.handleData(resData),
+    };
   }
 
   async handleData(data) {
@@ -71,19 +75,20 @@ class NewsService extends Service {
         priceDesc: one.article_price,
         title: one.article_title,
         pic: `${this.config.domain}:7001/public/${date}/` + img,
-        url: one.article_mall_url,
+        url: one.article_taobao_url.href,
       };
     });
   }
 
   async loopGet(allData, limitTime, startTime) {
-    const arrayData = await this.getGoods(startTime, true);
-    allData = [ ...allData, ...arrayData ];
-    const tempLastTime = arrayData.slice(-1)[0].timesort;
-    if (limitTime > tempLastTime) {
+    const { data, curLastTime } = await this.getGoods(startTime, true);
+    if (data.length) {
+      allData = [ ...allData, ...data ];
+    }
+    if (limitTime > curLastTime) {
       return allData;
     }
-    return await this.loopGet(allData, limitTime, tempLastTime);
+    return await this.loopGet(allData, limitTime, curLastTime);
   }
 
   async getGoodsFromDb(length = 10, lastId) {

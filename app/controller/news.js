@@ -26,6 +26,7 @@ class NewsController extends Controller {
     this.ctx.logger.info(logData);
     this.app.databaseIniting = false;
     this.ctx.body = result;
+    this.app.isNewsCacheExpired = true;
   }
 
   async test() {
