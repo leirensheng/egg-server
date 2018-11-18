@@ -2,6 +2,7 @@
 
 module.exports = appInfo => {
   return {
+    domain: 'http://120.78.173.191',
     // mysql: {
     //   client: {
     //     host: '127.0.0.1',
