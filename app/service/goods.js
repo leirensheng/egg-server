@@ -74,7 +74,7 @@ class NewsService extends Service {
         mall: one.article_mall,
         priceDesc: one.article_price,
         title: one.article_title,
-        pic: `${this.config.domain}:7001/public/${date}/` + img,
+        pic: `${this.config.domain}/image/${date}/` + img,
         url: one.article_taobao_url.href,
       };
     });
