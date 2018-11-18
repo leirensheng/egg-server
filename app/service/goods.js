@@ -50,10 +50,14 @@ class NewsService extends Service {
 
   async handleData(data) {
     const date = moment().format('YYYYMMDD');
-    const pathForPic = path.resolve(__dirname, `../public/${date}`);
+    const pathForPic = path.resolve(__dirname, '../public/image');
+    const pathForToday = pathForPic + `/${date}`;
     // todo:定期删图片, 添加时删除掉？
     if (!fs.existsSync(pathForPic)) {
       fs.mkdirSync(pathForPic);
+    }
+    if (!fs.existsSync(pathForToday)) {
+      fs.mkdirSync(pathForToday);
     }
 
 
@@ -65,7 +69,7 @@ class NewsService extends Service {
           Referer: 'https://www.smzdm.com',
           timeout: 10000,
         },
-        writeStream: fs.createWriteStream(path.join(pathForPic, img)),
+        writeStream: fs.createWriteStream(path.join(pathForToday, img)),
       });
       return {
         comment: one.article_comment,
