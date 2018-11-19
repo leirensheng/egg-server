@@ -10,6 +10,6 @@ module.exports = app => {
   router.get('/getGoods', controller.goods.get);
   router.get('/initNews', controller.news.initNews);
   router.get('/initGoods', controller.goods.initGoods);
-  router.get('/test', controller.news.test);
+  router.get('/test', controller.taobao.get);
 
 };

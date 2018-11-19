@@ -1,5 +1,12 @@
 'use strict';
+const crypto = require('crypto');
+
 module.exports = {
+
+  md5(str, sec) {
+    return crypto.createHmac('md5', sec).update(str).digest('hex');
+  },
+
   getWeekDay(date) {
     const num = date.getDay();
     switch (num) {
@@ -24,6 +31,25 @@ module.exports = {
   isEnglish(text) {
     return /^[a-zA-Z]+$/.test(text);
   },
+  sortByASCII(arr) {
+    return Array.prototype.sort.call(arr, function(a, b) {
+      for (let i = 0; i < a.length; i++) {
+        if (a.charCodeAt(i) == b.charCodeAt(i)) continue;
+        return a.charCodeAt(i) - b.charCodeAt(i);
+      }
+    });
+  },
+
+
+  getSign(publicData, realData) {
+    const dataToSign = Object.assign({}, publicData, realData);
+    const keySorted = Object.keys(dataToSign).sort();
+    const str = keySorted.reduce((prev, cur) => {
+      return prev + cur + dataToSign[cur];
+    }, '');
+    return this.md5(str, this.config.appSecret).toUpperCase();
+  },
+
   getIp(ctx) {
     let ipAddress;
     const forwardedIpsStr = ctx.headers['x-forwarded-for'];
