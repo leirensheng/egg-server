@@ -1,5 +1,6 @@
 'use strict';
 const crypto = require('crypto');
+const moment = require('moment');
 
 module.exports = {
 
@@ -32,7 +33,7 @@ module.exports = {
     return /^[a-zA-Z]+$/.test(text);
   },
   sortByASCII(arr) {
-    return Array.prototype.sort.call(arr, function(a, b) {
+    return Array.prototype.sort.call(arr, function (a, b) {
       for (let i = 0; i < a.length; i++) {
         if (a.charCodeAt(i) == b.charCodeAt(i)) continue;
         return a.charCodeAt(i) - b.charCodeAt(i);
@@ -40,14 +41,41 @@ module.exports = {
     });
   },
 
+  getPublicData(realData) {
+    let {
+      sign,
+      timestamp
+    } = this.getSign(this.config.publicDataWithoutTime, realData)
+    return {
+      sign,
+      ...this.config.publicDataWithoutTime,
+      timestamp
+    }
+  },
 
   getSign(publicData, realData) {
-    const dataToSign = Object.assign({}, publicData, realData);
+    const timestamp = moment().format('YYYY-MM-DD hh:mm:ss')
+    const dataToSign = Object.assign({
+      timestamp,
+    }, publicData, realData);
     const keySorted = Object.keys(dataToSign).sort();
     const str = keySorted.reduce((prev, cur) => {
       return prev + cur + dataToSign[cur];
     }, '');
-    return this.md5(str, this.config.appSecret).toUpperCase();
+    return {
+      timestamp,
+      sign: this.md5(str, this.config.appSecret).toUpperCase()
+    }
+  },
+
+  curl2(realData) {
+    const publicData = this.ctx.helper.getPublicData(realData);
+    console.log(publicData)
+    return this.app.curl(this.config.taobaoServerApi, {
+      data: Object.assign(publicData, realData),
+      method: 'GET',
+      dataType: 'json',
+    })
   },
 
   getIp(ctx) {
@@ -65,7 +93,7 @@ module.exports = {
   },
 
   parseUa(ua) {
-    const illegalDevicetype = [ 'Nexus 5X Build/MMB29P' ];
+    const illegalDevicetype = ['Nexus 5X Build/MMB29P'];
     const specialDevicetype = {
       'HUAWEI TIT-AL00 Build/HUAWEI TIT-AL00': 'HUAWEI TIT-AL00 Build/HUAWEITIT-AL00',
       'HUAWEI TAG-TL00 Build/TAG-TL00': 'HUAWEI TAG-TL00 Build/HUAWEITAG-TL00',
@@ -317,7 +345,7 @@ module.exports = {
 
     }
 
-    const shortDevicetypeArr = [ 'Build/NRD90M', 'Build/MRA58K', 'Build/LMY47D', 'Build/NMF26F', 'Build/N6F26Q', 'Build/LMY47I', 'Build/LRX21M' ];
+    const shortDevicetypeArr = ['Build/NRD90M', 'Build/MRA58K', 'Build/LMY47D', 'Build/NMF26F', 'Build/N6F26Q', 'Build/LMY47I', 'Build/LRX21M'];
     const parserData = {
       pl: 'other',
       devicetype: 'other',

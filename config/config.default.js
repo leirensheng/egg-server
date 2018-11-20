@@ -8,6 +8,13 @@ module.exports = appInfo => {
     taobaoServerApi: 'http://gw.api.taobao.com/router/rest',
     appKey: '25287605',
     appSecret: 'e0efd0e6b6ce607a5c9c1b31a4a4bf9a',
+    publicDataWithoutTime: {
+      app_key: '25287605',
+      sign_method: 'hmac',
+      format: 'json',
+      v: '2.0',
+      simplify: 'true',
+    },
     countPerDay: 15, // 每天15条
     daysBefore: 15, // 拿知道出现15条前的数据
     middleware: [ 'robot', 'responseTime', 'gzip', 'cross' ],
