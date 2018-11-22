@@ -39,7 +39,7 @@ class TaobaoService extends Service {
       adzone_id: '60925450088',
       is_overseas: false,
       has_coupon: true,
-      sort: 'tk_rate_des', // 排序_des（降序），排序_asc（升序），销量（total_sales），淘客佣金比率（tk_rate）， 累计推广量（tk_total_sales），总支出佣金（tk_total_commi），价格（price）
+      sort: 'tk_total_sales_des', // 排序_des（降序），排序_asc（升序），销量（total_sales），淘客佣金比率（tk_rate）， 累计推广量（tk_total_sales），总支出佣金（tk_total_commi），价格（price）
       q,
     };
     const { data } = await this.ctx.helper.curl2(realData);
@@ -47,17 +47,18 @@ class TaobaoService extends Service {
     return this.handleTbSearch(data);
   }
   async handleTbSearch(data) {
-
     return data.result_list.map(one => {
+      const reg = /(\d*)元$/g;
+      const conpon = reg.exec(one.coupon_info)[1];
       return {
-        comment: one.volume,
+        volumn: one.volume,
         content: '',
-        date: one.coupon_info,
+        conpon: conpon + '元',
+        conponLeft: one.coupon_remain_count,
         mall: one.user_type === 1 ? '天猫' : '淘宝',
         pic: one.pict_url,
-        conpon: one.coupon_info,
-        priceDesc: `${one.zk_final_price}元 (原价：${one.reserve_price}元)`,
-        title: one.short_title,
+        priceDesc: `券后价：${one.zk_final_price - conpon}元`,
+        title: one.title,
         url: one.coupon_share_url,
       };
     });
