@@ -70,7 +70,6 @@ module.exports = {
 
   curl2(realData) {
     const publicData = this.ctx.helper.getPublicData(realData);
-    console.log(publicData)
     return this.app.curl(this.config.taobaoServerApi, {
       data: Object.assign(publicData, realData),
       method: 'GET',

@@ -16,4 +16,8 @@ module.exports = {
     prefix: '/public/',
     enabled: true,
   },
+  cors: {
+    enable: true,
+    package: 'egg-cors',
+  },
 };

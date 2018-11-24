@@ -11,10 +11,13 @@ class TaobaoController extends Controller {
   }
 
   async search() {
-    const result = await this.service.taobao.search(this.ctx.query.q, this.ctx.query.page);
+    const result = await this.service.taobao.searchHandled(this.ctx.query.q, this.ctx.query.page);
     this.ctx.body = result;
   }
-
+  async getTaokouling() {
+    const result = await this.service.taobao.getTaokouling(this.ctx.request.body.url, this.ctx.request.body.message);
+    this.ctx.body = result;
+  }
 }
 
 module.exports = TaobaoController;

@@ -3,6 +3,12 @@
 module.exports = appInfo => {
   return {
     keys: appInfo.name + '_1540471238491_9420',
+    security: {
+      csrf: {
+        enable: false,
+        ignoreJSON: true, // 默认为 false，当设置为 true 时，将会放过所有 content-type 为 `application/json` 的请求
+      },
+    },
     domain: 'http://127.0.0.1',
     taobaoTestApi: 'http://gw.api.tbsandbox.com/router/rest',
     taobaoServerApi: 'http://gw.api.taobao.com/router/rest',
@@ -17,7 +23,11 @@ module.exports = appInfo => {
     },
     countPerDay: 15, // 每天15条
     daysBefore: 15, // 拿知道出现15条前的数据
-    middleware: [ 'robot', 'responseTime', 'gzip', 'cross' ],
+    middleware: [ 'robot', 'responseTime', 'gzip' ],
+    cors: {
+      origin: '*',
+      allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
+    },
     gzip: {
       threshold: 1024,
     },

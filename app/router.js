@@ -11,5 +11,6 @@ module.exports = app => {
   router.get('/initNews', controller.news.initNews);
   router.get('/initGoods', controller.goods.initGoods);
   router.get('/tbSearch', controller.taobao.search);
+  router.post('/getTaokouling', controller.taobao.getTaokouling);
 
 };
