@@ -52,7 +52,6 @@ class TaobaoService extends Service {
     });
 
     data.sort((a, b) => {
-      // a.
       return b.weight - a.weight;
     });
     return {
@@ -79,10 +78,22 @@ class TaobaoService extends Service {
   }
 
   handleTbSearch(data) {
-    return data.filter(one => one.volume).map(one => {
+    const ids = new Set(data.map(one => one.num_iid));
+    return data.filter(one => {
+      if (ids.delete(one.num_iid)) {
+        return one.volume;
+      }
+      return false;
+    }).map(one => {
       const reg = /(\d*)元$/g;
       const conpon = reg.exec(one.coupon_info)[1];
-      const finalPrice = one.zk_final_price - conpon;
+
+      let finalPrice = one.zk_final_price - conpon;
+
+      if (/\d\.\d{3,}$/.test(finalPrice)) {
+        finalPrice = finalPrice.toFixed(2);
+        console.log('in');
+      }
       return {
         volume: one.volume,
         content: '',
