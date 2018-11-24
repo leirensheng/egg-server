@@ -53,7 +53,7 @@ class TaobaoService extends Service {
 
     data.sort((a, b) => {
       // a.
-      return a.weight - b.weight;
+      return b.weight - a.weight;
     });
     return {
       data,
