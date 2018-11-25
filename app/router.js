@@ -12,6 +12,6 @@ module.exports = app => {
   router.get('/initGoods', controller.goods.initGoods);
   router.get('/tbSearch', controller.taobao.search);
   router.post('/getTaokouling', controller.taobao.getTaokouling);
-  router.post('/wx', controller.weixin.weixinCheck);
+  router.get('/wx', controller.weixin.weixinCheck);
 
 };
