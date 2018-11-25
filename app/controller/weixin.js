@@ -30,17 +30,22 @@ class WeixinController extends Controller {
           // var eventName = body.Event(EventFunction[eventName] || function() {})(body, req, res);
           // 自动回复消息
         } else if (messageType === 'text') {
-          let xml = { xml: {
-            ToUserName: body.FromUserName,
-            FromUserName: body.ToUserName,
-            CreateTime: +new Date(),
-            MsgType: 'text',
-            Content: body.Content[0],
-          } };
+          let xml = {
+            xml: {
+              ToUserName: body.FromUserName,
+              FromUserName: body.ToUserName,
+              CreateTime: +new Date(),
+              MsgType: 'text',
+              Content: body.Content[0],
+            },
+          };
           xml = builder.buildObject(xml);
           console.log(xml);
+          this.ctx.set('content-type', 'text/xml; charset=utf-8');
+
           this.ctx.body = xml;
-          this.ctx.res.end(xml);
+
+          // this.ctx.res.end(xml);
 
           // EventFunction.responseNews(body, res);
           // 第一次填写URL时确认接口是否有效
@@ -54,9 +59,14 @@ class WeixinController extends Controller {
     // }
   }
   async test() {
-    this.ctx.body = await this.service.weixin.getTocken();
+    const a = {
+      a: 2,
+      b: 3,
+    };
+    // xml = ;
+    this.ctx.set('content-type', 'text/xml; charset=utf-8');
+    this.ctx.body = builder.buildObject(a);
   }
 }
 
 module.exports = WeixinController;
-
