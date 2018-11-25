@@ -7,7 +7,9 @@ module.exports = {
   md5(str, sec) {
     return crypto.createHmac('md5', sec).update(str).digest('hex');
   },
-
+  md50(str) {
+    return crypto.createHash('md5').update(str).digest('hex');
+  },
   getWeekDay(date) {
     const num = date.getDay();
     switch (num) {

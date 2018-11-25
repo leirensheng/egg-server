@@ -1,7 +1,6 @@
 'use strict';
 
 const Service = require('egg').Service;
-const moment = require('moment');
 
 
 class TaobaoService extends Service {
