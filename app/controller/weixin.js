@@ -16,8 +16,12 @@ class WeixinController extends Controller {
   dataFromWx() {
     // const result = this.service.weixin.check(this.ctx.request.query.signature, this.ctx.request.query.timestamp, this.ctx.request.query.nonce, this.ctx.request.query.echostr);
     // if (result) {
-    this.ctx.request.on('data', function(data) {
-      parser.parseString(data.toString(), function(err, result) {
+    let reqData = '';
+    this.ctx.req.on('data', function(data) {
+      reqData = reqData + data;
+    });
+    this.ctx.req.on('end', function() {
+      parser.parseString(reqData.toString(), function(err, result) {
         const body = result.xml;
         console.log(body);
         const messageType = body.MsgType;
