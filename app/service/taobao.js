@@ -35,17 +35,12 @@ class TaobaoService extends Service {
   async searchHandled(q, page_no) {
     const sorts = [ 'total_sales_des', 'price_asc', 'tk_total_sales_des', 'tk_rate' ];
     const [ a, b, c, d ] = await Promise.all(sorts.map(one => this.search(q, one, page_no)));
-    // console.log(a.length, b.length, c.length, d.length);
-    // let result = [ ...new Set([ ...a, ...b, ...c, ...d ]) ];
-
-
     const data = this.handleTbSearch([ ...a, ...b, ...c, ...d ]);
     const maxSales = Math.max(...(data.map(one => one.volume)));
     const minPrice = Math.min(...(data.map(one => one.finalPrice)));
     const maxFen = Math.max(...(data.map(one => one.shop_dsr)));
     const maxProfit = Math.max(...(data.map(one => one.profit)));
 
-    console.log(maxSales, minPrice, maxFen, maxProfit);
 
     data.forEach(one => {
       one.weight = one.volume / maxSales * 40 + minPrice / one.finalPrice * 30 + one.shop_dsr / maxFen * 20 + one.profit / maxProfit * 8;
@@ -92,7 +87,6 @@ class TaobaoService extends Service {
 
       if (/\d\.\d{3,}$/.test(finalPrice)) {
         finalPrice = finalPrice.toFixed(2);
-        console.log('in');
       }
       return {
         volume: one.volume,
@@ -124,16 +118,15 @@ class TaobaoService extends Service {
       });
   }
 
-  async getTaokouling(url, text = '复制这段内容，打开淘宝') {
-    console.log(url);
+  async getTaokouling(url, text, logo) {
     const realData = {
       method: 'taobao.tbk.tpwd.create',
       text,
       url,
+      logo,
     };
     const { data } = await this.ctx.helper.curl2(realData);
     return data;
-    // console.log(data);
   }
 }
 

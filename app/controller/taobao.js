@@ -15,7 +15,7 @@ class TaobaoController extends Controller {
     this.ctx.body = result;
   }
   async getTaokouling() {
-    const result = await this.service.taobao.getTaokouling(this.ctx.request.body.url, this.ctx.request.body.message);
+    const result = await this.service.taobao.getTaokouling(this.ctx.request.body.url, this.ctx.request.body.text, this.ctx.request.body.logo);
     this.ctx.body = result;
   }
 }
