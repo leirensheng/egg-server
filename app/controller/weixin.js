@@ -24,22 +24,31 @@ class WeixinController extends Controller {
       parser.parseString(reqData.toString(), function(err, result) {
         const body = result.xml;
         console.log(body);
-        const messageType = body.MsgType;
+        const messageType = body.MsgType[0];
         // 用户点击菜单响应事件
         if (messageType === 'event') {
-          var eventName = body.Event(EventFunction[eventName] || function() {})(body, req, res);
+          // var eventName = body.Event(EventFunction[eventName] || function() {})(body, req, res);
           // 自动回复消息
         } else if (messageType === 'text') {
-          EventFunction.responseNews(body, res);
+          let xml = { xml: {
+            ToUserName: body.FromUserName,
+            FromUserName: body.ToUserName,
+            CreateTime: +new Date(),
+            MsgType: 'text',
+            Content: body.Content[0],
+          } };
+          xml = builder.buildObject(xml);
+          this.ctx.body = xml;
+
+          // EventFunction.responseNews(body, res);
           // 第一次填写URL时确认接口是否有效
         } else {
-          res.send(echostr);
+          // res.send(echostr);
         }
       });
     });
 
-    console.log('data From Wx', this.ctx.request.body);
-    this.ctx.body = '';
+    // console.log('data From Wx', this.ctx.request.body);
     // }
   }
   async test() {
