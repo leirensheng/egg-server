@@ -13,7 +13,6 @@ class WeixinService extends Service {
     const result = this.ctx.helper.sha1(list.join(''));
     console.log(result);
     if (result === signature) {
-      console.log('in');
       return echostr;
     }
     return '';

@@ -10,6 +10,13 @@ module.exports = {
   sha1(str) {
     return crypto.createHash('sha1').update(str).digest('hex');
   },
+  checkSignature(params) {
+    var token = '25287605'
+    var key = [token, params.timestamp, params.nonce].sort().join('');
+    var sha1 = require('crypto').createHash('sha1');
+    sha1.update(key);
+    return sha1.digest('hex') == params.signature;
+  },
   getWeekDay(date) {
     const num = date.getDay();
     switch (num) {
