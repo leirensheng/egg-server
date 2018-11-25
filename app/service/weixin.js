@@ -11,7 +11,9 @@ class WeixinService extends Service {
     const list = [ token, timestamp, nonce ];
     list.sort();
     const result = this.ctx.helper.md50(list.join(''));
-    if (result == '3jem95CDKxfBI98Csk1gSGnCMwiT0X43Uwcd2OewPln') {
+    console.log(result);
+    if (result === signature) {
+      console.log('in');
       return echostr;
     }
     return '';
