@@ -11,11 +11,31 @@ class WeixinService extends Service {
     const list = [ token, timestamp, nonce ];
     list.sort();
     const result = this.ctx.helper.sha1(list.join(''));
-    console.log(result);
     if (result === signature) {
       return echostr;
     }
     return '';
+  }
+  // async refresh
+  async getTocken() {
+    if (this.app.cache.wxToken && !this.app.cache.isWxTokenExpired) {
+      return this.app.cache.wxToken;
+    }
+    const {
+      data,
+    } = await this.app.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.config.wxAppId}&secret=${this.config.wxAppSecret}`, {
+      dataType: 'json',
+    });
+    if (data.errcode) {
+      console.log('token更新失败', data.errmsg);
+      return '';
+    }
+    console.log('token更新成功');
+    this.app.cache.wxToken = data.access_token;
+    this.app.cache.isWxTokenExpired = false;
+    this.app.cache.wxTokenWillExpired = data.expires_in;
+    return data.access_token;
+
   }
 }
 

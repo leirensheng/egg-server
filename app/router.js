@@ -13,5 +13,7 @@ module.exports = app => {
   router.get('/tbSearch', controller.taobao.search);
   router.post('/getTaokouling', controller.taobao.getTaokouling);
   router.get('/wx', controller.weixin.weixinCheck);
+  router.post('/wx', controller.weixin.dataFromWx);
+  router.get('/test', controller.weixin.test);
 
 };

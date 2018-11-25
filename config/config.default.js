@@ -14,6 +14,8 @@ module.exports = appInfo => {
     taobaoServerApi: 'http://gw.api.taobao.com/router/rest',
     appKey: '25287605',
     appSecret: 'e0efd0e6b6ce607a5c9c1b31a4a4bf9a',
+    wxAppId: 'wxf7cb1c85ee062490',
+    wxAppSecret: 'e8aa3322d17640941a3ab80eb8796060',
     publicDataWithoutTime: {
       app_key: '25287605',
       sign_method: 'hmac',

@@ -1,6 +1,8 @@
 'use strict';
 module.exports = app => {
   app.beforeStart(async () => {
-    app.cache = {};
+    app.cache = {
+      // wxTokenWillExpired: 700,
+    };
   });
 };
