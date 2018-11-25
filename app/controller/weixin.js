@@ -38,6 +38,8 @@ class WeixinController extends Controller {
             Content: body.Content[0],
           } };
           xml = builder.buildObject(xml);
+          console.log(xml);
+          this.ctx.body = xml;
           this.ctx.res.end(xml);
 
           // EventFunction.responseNews(body, res);
