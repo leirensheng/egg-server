@@ -38,7 +38,7 @@ class WeixinController extends Controller {
             Content: body.Content[0],
           } };
           xml = builder.buildObject(xml);
-          this.ctx.body = xml;
+          this.ctx.res.send(xml);
 
           // EventFunction.responseNews(body, res);
           // 第一次填写URL时确认接口是否有效
