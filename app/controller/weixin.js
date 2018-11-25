@@ -20,8 +20,8 @@ class WeixinController extends Controller {
     this.ctx.req.on('data', function(data) {
       reqData = reqData + data;
     });
-    this.ctx.req.on('end', function() {
-      parser.parseString(reqData.toString(), function(err, result) {
+    this.ctx.req.on('end', () => {
+      parser.parseString(reqData.toString(), (err, result) => {
         const body = result.xml;
         console.log(body);
         const messageType = body.MsgType[0];
