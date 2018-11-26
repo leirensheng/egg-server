@@ -49,6 +49,15 @@ module.exports = {
       }
     });
   },
+   replyText(data){
+    return `<xml> 
+      <ToUserName><![CDATA[${data.ToUserName}]]></ToUserName>
+      <FromUserName><![CDATA[${data.FromUserName}]]></FromUserName>
+      <CreateTime><![CDATA[${Date.now()}]]></CreateTime>
+      <MsgType><![CDATA[${data.MsgType}]]></MsgType>
+      <Content><![CDATA[${data.Content}]]></Content>
+      </xml>`;
+  },
 
   getPublicData(realData) {
     let {
