@@ -15,9 +15,8 @@ class WeixinController extends Controller {
       FromUserName,
       Content,
     } = this.ctx.req.body;
-    if (MsgType === 'event') {
 
-    } else if (MsgType === 'text') {
+    if (MsgType === 'text') {
       const resXml = {
         xml: {
           ToUserName: FromUserName,
@@ -29,23 +28,9 @@ class WeixinController extends Controller {
       };
       this.ctx.set('Content-Type', 'text/xml');
       this.ctx.body = this.ctx.helper.jsonToXml(resXml);
+    } else {
+      this.ctx.body = 'success';
     }
-  }
-  async test() {
-    const a = {
-      a: 2,
-      b: 3,
-    };
-    // xml = ;
-    this.ctx.set('content-type', 'text/xml; charset=utf-8');
-    // this.ctx.body = builder.buildObject(a);
-    this.ctx.body = this.ctx.helper.replyText({
-      ToUserName: 'body.FromUserName',
-      FromUserName: 'body.ToUserName',
-      // CreateTime: +new Date(),
-      MsgType: 'text',
-      Content: 'body.Content[0]',
-    });
   }
 }
 
