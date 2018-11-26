@@ -43,7 +43,7 @@ class WeixinController extends Controller {
             ToUserName: body.FromUserName,
             FromUserName: body.ToUserName,
             // CreateTime: +new Date(),
-            MsgTypte: 'text',
+            MsgType: 'text',
             Content: body.Content[0],
           };
           const xml = this.ctx.helper.replyText(replyText);
