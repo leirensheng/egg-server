@@ -49,7 +49,7 @@ class WeixinController extends Controller {
           const xml = this.ctx.helper.replyText(replyText);
           // xml = builder.buildObject(xml);
           console.log(xml);
-          this.ctx.set('content-type', 'text/xml; charset=utf-8');
+          // this.ctx.set('content-type', 'text/xml; charset=utf-8');
 
           this.ctx.body = xml;
 
