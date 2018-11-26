@@ -1,6 +1,7 @@
 'use strict';
 const crypto = require('crypto');
 const moment = require('moment');
+const xml2js = require('xml2js');
 
 module.exports = {
 
@@ -60,15 +61,35 @@ module.exports = {
   //     </xml>`;
   //     return xml
   // },
-  replyText({ToUserName,FromUserName,Content}){
-    var xmlContent =  "<xml><ToUserName><![CDATA["+ ToUserName +"]]></ToUserName>";
-        xmlContent += "<FromUserName><![CDATA["+ FromUserName +"]]></FromUserName>";
-        xmlContent += "<CreateTime>"+ new Date().getTime() +"</CreateTime>";
-        xmlContent += "<MsgType><![CDATA[text]]></MsgType>";
-        xmlContent += "<Content><![CDATA["+ Content +"]]></Content></xml>";
+  replyText({
+    ToUserName,
+    FromUserName,
+    Content
+  }) {
+    var xmlContent = "<xml><ToUserName><![CDATA[" + ToUserName + "]]></ToUserName>";
+    xmlContent += "<FromUserName><![CDATA[" + FromUserName + "]]></FromUserName>";
+    xmlContent += "<CreateTime>" + new Date().getTime() + "</CreateTime>";
+    xmlContent += "<MsgType><![CDATA[text]]></MsgType>";
+    xmlContent += "<Content><![CDATA[" + Content + "]]></Content></xml>";
     return xmlContent;
-},
+  },
 
+  xmlToJson(str) {
+    return new Promise((resolve, reject) => {
+      const parseString = xml2js.parseString
+      parseString(str,{explicitArray : false}, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result.xml)
+        }
+      })
+    })
+  },
+  jsonToXml(obj) {
+    const builder = new xml2js.Builder()
+    return builder.buildObject(obj)
+  },
 
   getPublicData(realData) {
     let {
