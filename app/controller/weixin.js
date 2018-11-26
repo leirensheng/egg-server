@@ -73,7 +73,14 @@ class WeixinController extends Controller {
     };
     // xml = ;
     this.ctx.set('content-type', 'text/xml; charset=utf-8');
-    this.ctx.body = builder.buildObject(a);
+    // this.ctx.body = builder.buildObject(a);
+    this.ctx.body = this.ctx.helper.replyText({
+      ToUserName: 'body.FromUserName',
+      FromUserName: 'body.ToUserName',
+      // CreateTime: +new Date(),
+      MsgType: 'text',
+      Content: 'body.Content[0]',
+    });
   }
 }
 

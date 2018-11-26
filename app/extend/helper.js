@@ -49,15 +49,26 @@ module.exports = {
       }
     });
   },
-   replyText(data){
-    return `<xml> 
-      <ToUserName><![CDATA[${data.ToUserName}]]></ToUserName>
-      <FromUserName><![CDATA[${data.FromUserName}]]></FromUserName>
-      <CreateTime><![CDATA[${Date.now()}]]></CreateTime>
-      <MsgType><![CDATA[${data.MsgType}]]></MsgType>
-      <Content><![CDATA[${data.Content}]]></Content>
-      </xml>`;
-  },
+  //  replyText(data){
+  //   let xml=
+  //    `<xml>
+  //       <ToUserName><![CDATA[${data.ToUserName}]]></ToUserName>
+  //       <FromUserName><![CDATA[${data.FromUserName}]]></FromUserName>
+  //       <CreateTime><![CDATA[${Date.now()}]]></CreateTime>
+  //       <MsgType><![CDATA[${data.MsgType}]]></MsgType>
+  //       <Content><![CDATA[${data.Content}]]></Content>
+  //     </xml>`;
+  //     return xml
+  // },
+  replyText({ToUserName,FromUserName,Content}){
+    var xmlContent =  "<xml><ToUserName><![CDATA["+ ToUserName +"]]></ToUserName>";
+        xmlContent += "<FromUserName><![CDATA["+ FromUserName +"]]></FromUserName>";
+        xmlContent += "<CreateTime>"+ new Date().getTime() +"</CreateTime>";
+        xmlContent += "<MsgType><![CDATA[text]]></MsgType>";
+        xmlContent += "<Content><![CDATA["+ Content +"]]></Content></xml>";
+    return xmlContent;
+},
+
 
   getPublicData(realData) {
     let {
