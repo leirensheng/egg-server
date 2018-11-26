@@ -30,25 +30,25 @@ class WeixinController extends Controller {
           // var eventName = body.Event(EventFunction[eventName] || function() {})(body, req, res);
           // 自动回复消息
         } else if (messageType === 'text') {
-          // let xml = {
-          //   xml: {
-          //     ToUserName: body.FromUserName,
-          //     FromUserName: body.ToUserName,
-          //     CreateTime: +new Date(),
-          //     MsgType: 'text',
-          //     Content: body.Content[0],
-          //   },
-          // };
-          const replyText = {
-            ToUserName: body.FromUserName,
-            FromUserName: body.ToUserName,
-            // CreateTime: +new Date(),
-            MsgType: 'text',
-            Content: body.Content[0],
+          let xml = {
+            xml: {
+              ToUserName: body.FromUserName,
+              FromUserName: body.ToUserName,
+              CreateTime: +new Date(),
+              MsgType: 'text',
+              Content: body.Content[0],
+            },
           };
-          const xml = this.ctx.helper.replyText(replyText);
-          // xml = builder.buildObject(xml);
-          console.log(xml);
+          // const replyText = {
+          //   ToUserName: body.FromUserName,
+          //   FromUserName: body.ToUserName,
+          //   // CreateTime: +new Date(),
+          //   MsgType: 'text',
+          //   Content: body.Content[0],
+          // };
+          // const xml = this.ctx.helper.replyText(replyText);
+          xml = builder.buildObject(xml);
+          // console.log(xml);
           this.ctx.set('content-type', 'text/xml');
 
           this.ctx.body = xml;
