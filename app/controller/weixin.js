@@ -21,6 +21,7 @@ class WeixinController extends Controller {
       reqData = reqData + data;
     });
     this.ctx.req.on('end', () => {
+      console.log(reqData);
       parser.parseString(reqData.toString(), (err, result) => {
         const body = result.xml;
         console.log(body);
@@ -48,7 +49,7 @@ class WeixinController extends Controller {
           // };
           // const xml = this.ctx.helper.replyText(replyText);
           xml = builder.buildObject(xml);
-          // console.log(xml);
+          console.log(xml);
           this.ctx.set('content-type', 'text/xml');
 
           this.ctx.body = xml;
