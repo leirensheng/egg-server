@@ -15,8 +15,9 @@ class WeixinController extends Controller {
       FromUserName,
       Content,
     } = this.ctx.req.body;
+    if (MsgType === 'event') {
 
-    if (MsgType === 'text') {
+    } else if (MsgType === 'text') {
       const resXml = {
         xml: {
           ToUserName: FromUserName,
@@ -28,8 +29,6 @@ class WeixinController extends Controller {
       };
       this.ctx.set('Content-Type', 'text/xml');
       this.ctx.body = this.ctx.helper.jsonToXml(resXml);
-    } else {
-      this.ctx.body = 'success';
     }
   }
 }
