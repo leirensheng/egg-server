@@ -71,6 +71,18 @@ class TaobaoService extends Service {
     return data.result_list;
   }
 
+  async detail(num_iids, platform = 2, ip) {
+    const realData = {
+      method: 'taobao.tbk.item.info.get',
+      num_iids,
+      platform,
+      ip,
+    };
+    const { data } = await this.ctx.helper.curl2(realData);
+    // console.log(data);
+    return data.results;
+  }
+
   handleTbSearch(data) {
     const ids = new Set(data.map(one => one.num_iid));
     return data.filter(one => {
@@ -102,6 +114,7 @@ class TaobaoService extends Service {
         title: one.title,
         url: one.coupon_share_url,
         taobaoUrl: one.url,
+        id: one.num_iid,
       };
     });
   }
