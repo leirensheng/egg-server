@@ -388,10 +388,7 @@ module.exports = {
           return 'System';
         }
       }
-
       return 'other';
-
-
     }
 
     const shortDevicetypeArr = ['Build/NRD90M', 'Build/MRA58K', 'Build/LMY47D', 'Build/NMF26F', 'Build/N6F26Q', 'Build/LMY47I', 'Build/LRX21M'];

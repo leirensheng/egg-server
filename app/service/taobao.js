@@ -31,10 +31,50 @@ class TaobaoService extends Service {
     // await this.service.getItem();
   }
 
-  async searchHandled(q, page_no) {
+
+  async getFourDimention(q, page_no) {
     const sorts = [ 'total_sales_des', 'price_asc', 'tk_total_sales_des', 'tk_rate' ];
-    const [ a, b, c, d ] = await Promise.all(sorts.map(one => this.search(q, one, page_no)));
-    const data = this.handleTbSearch([ ...a, ...b, ...c, ...d ]);
+    const resultArray = await Promise.all(sorts.map(one => this.search(q, one, page_no)));
+    const allData = resultArray.reduce((prev, cur) => {
+      if (cur) {
+        return [ ...prev, ...cur ];
+      }
+      return prev;
+    }, []);
+    const ids = new Set(allData.map(one => one.num_iid));
+    return this.handleTbSearch(allData, ids);
+  }
+
+
+  //  获取不到的话就切词获取
+  async loopGetData(q, page_no) {
+    // const keywordLength = 5;
+    const data = await this.getFourDimention(q, page_no);
+    console.log('淘宝查询');
+    if (!data.length) {
+      console.log('空');
+      // 如果剩下的可以处理的关键词为0，返回空
+      if (Array.isArray(this.ctx.keywords) && !this.ctx.keywords.length) {
+        return [];
+      }
+      // 没有关键词，就获取一次，截取7个
+      if (!this.ctx.keywords) {
+        const keywordsArr = await this.getKeywords(q);
+        const keywords = keywordsArr.map(one => one.t);
+        console.log('请求接口切词', keywords);
+        this.ctx.keywords = keywords.slice(0, 8);
+      }
+      //  有关键词了，请求接口
+      this.ctx.keywords.pop();
+      const curKeyword = this.ctx.keywords.join(' ');
+      console.log('关键词', curKeyword);
+      return await this.loopGetData(curKeyword, page_no);
+    }
+    return data;
+  }
+
+  async searchHandled(q, page_no) {
+    const data = await this.loopGetData(q, page_no);
     const maxSales = Math.max(...(data.map(one => one.volume)));
     const minPrice = Math.min(...(data.map(one => one.finalPrice)));
     const maxFen = Math.max(...(data.map(one => one.shop_dsr)));
@@ -57,13 +97,12 @@ class TaobaoService extends Service {
     };
   }
 
-  async search(q = 'iPhone', sort = 'total_sales_des', page_no = 1) {
+  async search(q = 'iPhone', sort = 'total_sales_des', page_no = 1, has_coupon = true) {
     const realData = {
       method: 'taobao.tbk.dg.material.optional',
       page_no,
       adzone_id: '60925450088',
-      is_overseas: false,
-      has_coupon: true,
+      has_coupon,
       sort, // 销量（total_sales），淘客佣金比率（tk_rate）， 累计推广量（tk_total_sales），总支出佣金（tk_total_commi），价格（price）
       q,
     };
@@ -83,8 +122,7 @@ class TaobaoService extends Service {
     return data.results;
   }
 
-  handleTbSearch(data) {
-    const ids = new Set(data.map(one => one.num_iid));
+  handleTbSearch(data, ids) {
     return data.filter(one => {
       if (ids.delete(one.num_iid)) {
         return one.volume;
@@ -119,6 +157,12 @@ class TaobaoService extends Service {
     });
   }
 
+  async getKeywords(str) {
+    const { data } = await this.app.curl(`http://api.pullword.com/get.php?source=${encodeURIComponent(str)}&param1=0&param2=1&json=1`, { dataType: 'json' });
+    return JSON.parse(data.toString()).sort((a, b) => b.p - a.p);
+  }
+
+
   async getConpon() {
     const realData = {
       method: 'taobao.tbk.coupon.get',
@@ -140,6 +184,53 @@ class TaobaoService extends Service {
     const { data } = await this.ctx.helper.curl2(realData);
     return data;
   }
+  async getRecommends(ids) {
+    for (const id of ids) {
+      const recommendData = await this.getRecommend(id);
+      if (recommendData) {
+        // return this.handleRecommendData(recommendData);
+      }
+    }
+  }
+  // handleRecommendData(data) {
+  //   return data.map(one => ({
+  //     volume: one.volume,
+  //     content: '',
+  //     shop_dsr: one.shop_dsr,
+  //     conpon: conpon + '元',
+  //     finalPrice,
+  //     tkRate: one.commission_rate,
+  //     profit: one.commission_rate * finalPrice / 10000,
+  //     conponLeft: one.coupon_remain_count,
+  //     mall: one.user_type === 1 ? '天猫' : '淘宝',
+  //     pic: one.pict_url,
+  //     priceDesc: `券后价：${finalPrice}元`,
+  //     title: one.title,
+  //     url: one.coupon_share_url,
+  //     taobaoUrl: one.url,
+  //     id: one.num_iid,
+  //   }));
+  // }
+  async getRecommend(num_iid) {
+    const realData = {
+      method: 'taobao.tbk.item.recommend.get',
+      num_iid,
+      fields: 'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url',
+    };
+    const { data: { results } } = await this.ctx.helper.curl2(realData);
+    return results;
+  }
+  // async getRecommend(user_id) {
+  //   const realData = {
+  //     method: 'taobao.tbk.shop.recommend.get',
+  //     user_id,
+  //     fields: 'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url',
+  //   };
+  //   const { data } = await this.ctx.helper.curl2(realData);
+  //   console.log(data);
+  //   return data;
+  // }
+
 }
 
 module.exports = TaobaoService;

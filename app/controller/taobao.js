@@ -24,6 +24,10 @@ class TaobaoController extends Controller {
     const result = await this.service.taobao.getTaokouling(this.ctx.request.body.url, this.ctx.request.body.text, this.ctx.request.body.logo);
     this.ctx.body = result;
   }
+  async getRecommend() {
+    const result = await this.service.taobao.getRecommend(this.ctx.query.id);
+    this.ctx.body = result;
+  }
 }
 
 module.exports = TaobaoController;
