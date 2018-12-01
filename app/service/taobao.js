@@ -253,7 +253,10 @@ class TaobaoService extends Service {
         tbname: 'leirensheng',
       },
     });
-    return data;
+    if (data.code === 200) {
+      return data.result.data;
+    }
+    return '';
   }
   // async getRecommend(user_id) {
   //   const realData = {
