@@ -50,7 +50,7 @@ class TaobaoService extends Service {
   async loopGetData(q, page_no) {
     // const keywordLength = 5;
     const data = await this.getFourDimention(q, page_no);
-    console.log('淘宝查询');
+    console.log('淘宝查询完毕');
     if (!data.length) {
       console.log('空');
       // 如果剩下的可以处理的关键词为0，返回空
@@ -158,7 +158,7 @@ class TaobaoService extends Service {
       };
     });
     const tooLowPrice = sum / (uniqueData.length) * 0.1;
-    console.log('价格阈值', tooLowPrice);
+    console.log('价格阈值', tooLowPrice, 'uniqueData', uniqueData.length);
     return uniqueData.filter(one => one.finalPrice >= tooLowPrice);
   }
 
@@ -225,6 +225,11 @@ class TaobaoService extends Service {
     };
     const { data: { results } } = await this.ctx.helper.curl2(realData);
     return results;
+  }
+
+  async translateTaokouling(kouling) {
+    const { data } = await this.app.curl(`https://api.open.21ds.cn/apiv1/getitemgyurlbytpwd?apkey=c29e9356-c281-e8a1-ba6e-915dee0ab79c&tpwdcode=${kouling}&pid=mm_41438501_216300412_60925450088&tbname=leirensheng`, { dataType: 'json' });
+    return data;
   }
   // async getRecommend(user_id) {
   //   const realData = {
