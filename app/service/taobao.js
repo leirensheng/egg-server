@@ -58,16 +58,16 @@ class TaobaoService extends Service {
         return [];
       }
       // 没有关键词，就获取一次，截取7个
-      if (!this.ctx.keywords) {
+      if (!this.ctx.keywords && q) {
         const keywordsArr = await this.getKeywords(q);
         const keywords = keywordsArr.map(one => one.t);
         console.log('请求接口切词', keywords);
         this.ctx.keywords = keywords.slice(0, 8);
       }
       //  有关键词了，请求接口
-      this.ctx.keywords.pop();
       const curKeyword = this.ctx.keywords.join(' ');
       console.log('关键词', curKeyword);
+      this.ctx.keywords.pop();
       return await this.loopGetData(curKeyword, page_no);
     }
     return data;
@@ -123,7 +123,8 @@ class TaobaoService extends Service {
   }
 
   handleTbSearch(data, ids) {
-    return data.filter(one => {
+    let sum = 0;
+    const uniqueData = data.filter(one => {
       if (ids.delete(one.num_iid)) {
         return one.volume;
       }
@@ -137,6 +138,7 @@ class TaobaoService extends Service {
       if (/\d\.\d{3,}$/.test(finalPrice)) {
         finalPrice = finalPrice.toFixed(2);
       }
+      sum = sum + Number(finalPrice);
       return {
         volume: one.volume,
         content: '',
@@ -155,10 +157,14 @@ class TaobaoService extends Service {
         id: one.num_iid,
       };
     });
+    const tooLowPrice = sum / (uniqueData.length) * 0.1;
+    console.log('价格阈值', tooLowPrice);
+    return uniqueData.filter(one => one.finalPrice >= tooLowPrice);
   }
 
   async getKeywords(str) {
     const { data } = await this.app.curl(`http://api.pullword.com/get.php?source=${encodeURIComponent(str)}&param1=0&param2=1&json=1`, { dataType: 'json' });
+    console.log(data.toString());
     return JSON.parse(data.toString()).sort((a, b) => b.p - a.p);
   }
 

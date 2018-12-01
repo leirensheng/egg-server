@@ -42,7 +42,7 @@ module.exports = appInfo => {
     },
     mysql: {
       client: {
-        host: '127.0.0.1',
+        host: 'm.ixcut.com',
         port: '3306',
         user: 'root',
         password: 'Abc123456',
