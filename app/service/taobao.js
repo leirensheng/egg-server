@@ -106,7 +106,9 @@ class TaobaoService extends Service {
       sort, // 销量（total_sales），淘客佣金比率（tk_rate）， 累计推广量（tk_total_sales），总支出佣金（tk_total_commi），价格（price）
       q,
     };
-    const { data } = await this.ctx.helper.curl2(realData);
+    const {
+      data,
+    } = await this.ctx.helper.curl2(realData);
     return data.result_list;
   }
 
@@ -117,7 +119,9 @@ class TaobaoService extends Service {
       platform,
       ip,
     };
-    const { data } = await this.ctx.helper.curl2(realData);
+    const {
+      data,
+    } = await this.ctx.helper.curl2(realData);
     // console.log(data);
     return data.results;
   }
@@ -163,7 +167,11 @@ class TaobaoService extends Service {
   }
 
   async getKeywords(str) {
-    const { data } = await this.app.curl(`http://api.pullword.com/get.php?source=${encodeURIComponent(str)}&param1=0&param2=1&json=1`, { dataType: 'json' });
+    const {
+      data,
+    } = await this.app.curl(`http://api.pullword.com/get.php?source=${encodeURIComponent(str)}&param1=0&param2=1&json=1`, {
+      dataType: 'json',
+    });
     console.log(data.toString());
     return JSON.parse(data.toString()).sort((a, b) => b.p - a.p);
   }
@@ -187,7 +195,9 @@ class TaobaoService extends Service {
       url,
       logo,
     };
-    const { data } = await this.ctx.helper.curl2(realData);
+    const {
+      data,
+    } = await this.ctx.helper.curl2(realData);
     return data;
   }
   async getRecommends(ids) {
@@ -223,12 +233,26 @@ class TaobaoService extends Service {
       num_iid,
       fields: 'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url',
     };
-    const { data: { results } } = await this.ctx.helper.curl2(realData);
+    const {
+      data: {
+        results,
+      },
+    } = await this.ctx.helper.curl2(realData);
     return results;
   }
 
   async translateTaokouling(kouling) {
-    const { data } = await this.app.curl(`https://api.open.21ds.cn/apiv1/getitemgyurlbytpwd?apkey=c29e9356-c281-e8a1-ba6e-915dee0ab79c&tpwdcode=${kouling}&pid=mm_41438501_216300412_60925450088&tbname=leirensheng`, { dataType: 'json' });
+    const {
+      data,
+    } = await this.app.curl('https://api.open.21ds.cn/apiv1/getitemgyurlbytpwd', {
+      dataType: 'json',
+      data: {
+        apkey: 'c29e9356-c281-e8a1-ba6e-915dee0ab79c',
+        tpwdcode: `${kouling}`,
+        pid: 'mm_41438501_216300412_60925450088',
+        tbname: 'leirensheng',
+      },
+    });
     return data;
   }
   // async getRecommend(user_id) {
