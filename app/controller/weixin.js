@@ -39,8 +39,14 @@ class WeixinController extends Controller {
           ToUserName: FromUserName,
           FromUserName: ToUserName,
           CreateTime: Date.now(),
-          MsgType: 'text',
-          Content: resContent,
+          MsgType: 'news',
+          ArticleCount: 1,
+          Articles: {
+            Title: '555',
+            Description: '7777',
+            PicUrl: 'https://img.alicdn.com/bao/uploaded/i2/2883427048/O1CN011gwee921w1wxmxuCD_!!0-item_pic.jpg',
+            Url: 'http://m.ixcut.com',
+          },
         },
       };
       this.ctx.set('Content-Type', 'text/xml');
