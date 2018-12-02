@@ -22,18 +22,14 @@ class WeixinController extends Controller {
       if (matchRes && matchRes[1]) {
         const res = await this.ctx.service.taobao.translateTaokouling(matchRes[1]);
         console.log(res);
-
-/* eslint-disable */
-        if (res && res['has_conpon']) {
+        if (res && res.has_coupon) {
           resContent =
            `有优惠券
-            【优惠券】：${res['conpon_info']}
-            券类型：${res['conpon_type'] == 1 ? '公开券' : (res['conpon_type'] == 2 ? '私有券' : '妈妈券')}
+            【优惠券】：${res.coupon_info}
+            券类型：${res.coupon_type == 1 ? '公开券' : (res.coupon_type == 2 ? '私有券' : '妈妈券')}
             淘口令：${res.tpwd}
-            链接：${res['coupon_click_url']}
+            链接：${res.coupon_click_url}
            `;
-           /* eslint-enable */
-
         } else {
           resContent = '无优惠券';
         }
