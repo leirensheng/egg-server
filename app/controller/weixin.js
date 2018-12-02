@@ -21,14 +21,17 @@ class WeixinController extends Controller {
       const matchRes = regexp.exec(Content);
       if (matchRes && matchRes[1]) {
         const res = await this.ctx.service.taobao.translateTaokouling(matchRes[1]);
-        if (res) {
+        console.log(res);
+        if (res && res.has_conpon) {
           resContent =
-           `${res.has_conpon ? '有' : '无'}优惠券
-            优惠券：${res.conpon_info}
+           `有优惠券
+            【优惠券】：${res.conpon_info}
             券类型：${res.conpon_type == 1 ? '公开券' : (res.conpon_type == 2 ? '私有券' : '妈妈券')}
             淘口令：${res.tpwd}
             链接：${res.coupon_click_url}
            `;
+        } else {
+          resContent = '无优惠券';
         }
       }
       const resXml = {
