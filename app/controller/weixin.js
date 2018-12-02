@@ -17,7 +17,10 @@ class WeixinController extends Controller {
     } = this.ctx.req.body;
     if (MsgType === 'text') {
       // let resContent = Content;
-      let resObj;
+      let resObj = {
+        MsgType: 'text',
+        Content: '欢迎',
+      };
       const regexp = /(￥.*￥)/ig;
       const matchRes = regexp.exec(Content);
       if (matchRes && matchRes[1]) {

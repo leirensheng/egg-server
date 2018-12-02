@@ -112,7 +112,7 @@ class TaobaoService extends Service {
     return data.result_list;
   }
 
-  async detail(num_iids, platform = 2, ip) {
+  async detail(num_iids, platform = 2, ip = this.ctx.ip) {
     const realData = {
       method: 'taobao.tbk.item.info.get',
       num_iids,
