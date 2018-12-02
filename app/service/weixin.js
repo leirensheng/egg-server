@@ -35,7 +35,21 @@ class WeixinService extends Service {
     this.app.cache.isWxTokenExpired = false;
     this.app.cache.wxTokenWillExpired = data.expires_in;
     return data.access_token;
-
+  }
+  async getTaokoulingDetail(kouling) {
+    const res = await this.ctx.service.taobao.translateTaokouling(kouling);
+    if (res && res.has_coupon) {
+      const reg = /(\d*)元$/g;
+      const coupon = reg.exec(res.coupon_info)[1];
+      const [ detail ] = await this.ctx.service.taobao.detail(res.item_id);
+      return {
+        Title: detail.title,
+        Description: `优惠券：${coupon}元  券后价：${detail.zk_final_price - coupon}元`,
+        PicUrl: detail.pict_url,
+        Url: `http://m.ixcut.com/detail?id=${res.item_id}&source=wx`,
+      };
+    }
+    return '';
   }
 }
 
