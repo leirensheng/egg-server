@@ -23,6 +23,6 @@ module.exports = () => {
       .catch(e => {
         e.status = 400;
       });
-    next();
+    await next();
   };
 };
