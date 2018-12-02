@@ -49,6 +49,7 @@ class WeixinService extends Service {
         Url: `http://m.ixcut.com/detail?data=${encodeURIComponent(JSON.stringify({
           url: res.short_url,
           tpwd: res.tpwd,
+          finalPrice: detail.zk_final_price - coupon,
           id: res.item_id,
         }))}`,
       };
