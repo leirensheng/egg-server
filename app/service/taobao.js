@@ -251,6 +251,8 @@ class TaobaoService extends Service {
         tpwdcode: `${kouling}`,
         pid: 'mm_41438501_216300412_60925450088',
         tbname: 'leirensheng',
+        shorturl: 1,
+        tpwd: 1,
       },
     });
     if (data.code === 200) {
