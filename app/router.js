@@ -18,6 +18,7 @@ module.exports = app => {
   router.get('/wx', controller.weixin.weixinCheck);
   router.post('/wx', xmlParse, controller.weixin.dataFromWx);
   router.get('/recommend', controller.taobao.getRecommend);
-  // router.get('/test', controller.weixin.test);
+  router.post('/setWxMenu', controller.weixin.setWxMenu);
+  router.post('/getWxMenu', controller.weixin.getWxMenu);
 
 };

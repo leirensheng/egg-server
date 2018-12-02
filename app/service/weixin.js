@@ -56,6 +56,18 @@ class WeixinService extends Service {
     }
     return '';
   }
+  async setWxMenu(data) {
+    return await this.app.curl(` https://api.weixin.qq.com/cgi-bin/menu/create?access_token=${this.app.cache.wxToken}`, {
+      dataType: 'json',
+      method: 'POST',
+      data,
+    });
+  }
+  async getWxMenu() {
+    return await this.app.curl(` https://api.weixin.qq.com/cgi-bin/menu/get?access_token=${this.app.cache.wxToken}`, {
+      dataType: 'json',
+    });
+  }
 }
 
 module.exports = WeixinService;

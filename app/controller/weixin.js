@@ -6,6 +6,14 @@ class WeixinController extends Controller {
   async weixinCheck() {
     const result = this.service.weixin.check(this.ctx.request.query.signature, this.ctx.request.query.timestamp, this.ctx.request.query.nonce, this.ctx.request.query.echostr);
     this.ctx.body = result;
+  } 
+  async setWxMenu(){
+    const result = await this.ctx.service.weixin.setWxMenu(this.ctx.request.body)
+    this.ctx.body=result
+  }
+  async getWxMenu(){
+    const result = await this.ctx.service.weixin.getWxMenu()
+    this.ctx.body=result 
   }
   async dataFromWx() {
     console.log('body', this.ctx.req.body);
