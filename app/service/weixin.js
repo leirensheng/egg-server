@@ -46,7 +46,7 @@ class WeixinService extends Service {
         Title: detail.title,
         Description: `优惠券：${coupon}元  券后价：${detail.zk_final_price - coupon}元`,
         PicUrl: detail.pict_url,
-        Url: `http://m.ixcut.com/detail?id=${res.item_id}&source=wx`,
+        Url: `http://m.ixcut.com/detail?id=${res.item_id}&source=wx&data=${encodeURIComponent(JSON.stringify({...res,...detail}))}`,
       };
     }
     return '';
