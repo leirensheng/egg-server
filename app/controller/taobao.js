@@ -11,8 +11,23 @@ class TaobaoController extends Controller {
   }
 
   async search() {
-    const result = await this.service.taobao.searchHandled(this.ctx.query.q, this.ctx.query.page);
-    this.ctx.body = result;
+    const regexp = /(￥.*￥)/ig;
+    const matchRes = regexp.exec(this.ctx.query.q);
+    if (matchRes && matchRes[1]) {
+      const item = await this.ctx.service.weixin.getTaokoulingDetail(matchRes[1]);
+      if (item) {
+        this.ctx.body = {
+          data: item,
+        };
+      } else {
+        this.ctx.body = {
+          data: [],
+        };
+      }
+    } else {
+      const result = await this.service.taobao.searchHandled(this.ctx.query.q, this.ctx.query.page);
+      this.ctx.body = result;
+    }
   }
   async detail() {
     const results = await this.service.taobao.detail(this.ctx.query.id, this.ctx.query.platform, this.ctx.ip);
