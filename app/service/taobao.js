@@ -177,7 +177,7 @@ class TaobaoService extends Service {
         conpon: coupon + '元',
         finalPrice,
         priceDesc: '券后价：' + finalPrice + '元',
-        url: res.url,
+        url: res.short_url,
         pic: detail.pict_url,
         mall: detail.user_type ? '天猫' : '淘宝',
         title: detail.title,
