@@ -182,6 +182,7 @@ class TaobaoService extends Service {
         mall: detail.user_type ? '天猫' : '淘宝',
         title: detail.title,
         volume: detail.volume,
+        id: res.item_id,
       };
     }
     return '';
