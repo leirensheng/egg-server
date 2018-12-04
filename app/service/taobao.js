@@ -166,6 +166,26 @@ class TaobaoService extends Service {
     return uniqueData.filter(one => one.finalPrice >= tooLowPrice);
   }
 
+  async getTaokoulingDetail(kouling) {
+    const res = await this.ctx.service.taobao.translateTaokouling(kouling);
+    if (res && res.has_coupon) {
+      const reg = /(\d*)元$/g;
+      const coupon = reg.exec(res.coupon_info)[1];
+      const [ detail ] = await this.ctx.service.taobao.detail(res.item_id);
+      const finalPrice = detail.zk_final_price - coupon;
+      return {
+        conpon: coupon + '元',
+        finalPrice,
+        priceDesc: '券后价：' + finalPrice + '元',
+        url: res.url,
+        pic: detail.pict_url,
+        mall: detail.user_type ? '天猫' : '淘宝',
+        title: detail.title,
+        volume: detail.volume,
+      };
+    }
+    return '';
+  }
   async getKeywords(str) {
     const {
       data,

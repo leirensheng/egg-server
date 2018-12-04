@@ -14,10 +14,10 @@ class TaobaoController extends Controller {
     const regexp = /(￥.*￥)/ig;
     const matchRes = regexp.exec(this.ctx.query.q);
     if (matchRes && matchRes[1]) {
-      const item = await this.ctx.service.weixin.getTaokoulingDetail(matchRes[1]);
+      const item = await this.ctx.service.taobao.getTaokoulingDetail(matchRes[1]);
       if (item) {
         this.ctx.body = {
-          data: item,
+          data: [ item ],
         };
       } else {
         this.ctx.body = {
