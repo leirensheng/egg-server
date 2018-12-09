@@ -50,7 +50,7 @@ class TaobaoService extends Service {
   async loopGetData(q, page_no) {
     // const keywordLength = 5;
     const data = await this.getFourDimention(q, page_no);
-    console.log('淘宝查询完毕');
+    console.log('淘宝查询完毕'.green);
     if (!data.length) {
       console.log('空');
       // 如果剩下的可以处理的关键词为0，返回空

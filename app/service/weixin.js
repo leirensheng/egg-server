@@ -5,8 +5,6 @@ const Service = require('egg').Service;
 
 class WeixinService extends Service {
   check(signature, timestamp, nonce, echostr) {
-    // console.log('in', this.ctx.query.signature);
-    console.log(signature, timestamp, nonce, echostr);
     const token = '25287605';
     const list = [ token, timestamp, nonce ];
     list.sort();
@@ -27,10 +25,10 @@ class WeixinService extends Service {
       dataType: 'json',
     });
     if (data.errcode) {
-      console.log('token更新失败', data.errmsg);
+      console.log('token更新失败'.red, data.errmsg);
       return '';
     }
-    console.log('token更新成功');
+    console.log('token更新成功'.green);
     this.app.cache.wxToken = data.access_token;
     this.app.cache.isWxTokenExpired = false;
     this.app.cache.wxTokenWillExpired = data.expires_in;
