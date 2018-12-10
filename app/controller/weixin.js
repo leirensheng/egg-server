@@ -27,7 +27,7 @@ class WeixinController extends Controller {
       // let resContent = Content;
       let resObj = {
         MsgType: 'text',
-        Content: '欢迎',
+        Content: '抱歉，无法识别您的指令！目前小助手仅支持淘宝的商品哦，复制带淘口令的淘宝链接即可查询',
       };
       const regexp = /(￥.*￥)/ig;
       const matchRes = regexp.exec(Content);
