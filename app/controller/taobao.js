@@ -25,6 +25,7 @@ class TaobaoController extends Controller {
         };
       }
     } else {
+      this.service.taobao.saveSearchWord(this.ctx.query.q);
       const result = await this.service.taobao.searchHandled(this.ctx.query.q, this.ctx.query.page);
       this.ctx.body = result;
     }

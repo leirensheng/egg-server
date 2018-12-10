@@ -261,7 +261,15 @@ class TaobaoService extends Service {
     } = await this.ctx.helper.curl2(realData);
     return results;
   }
-
+  saveSearchWord(str) {
+    this.getKeywords(str).then(res => {
+      const arr = res.map(one => ({ keyword: one.t, isSplit: 1 }));
+      arr.push({ keyword: str, isSplit: 0 });
+      this.app.mysql.insert('kw', arr).catch(e => {
+        console.log(e);
+      });
+    });
+  }
   async translateTaokouling(kouling) {
     const {
       data,
