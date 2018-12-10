@@ -20,5 +20,5 @@ module.exports = app => {
   router.get('/recommend', controller.taobao.getRecommend);
   router.post('/setWxMenu', controller.weixin.setWxMenu);
   router.post('/getWxMenu', controller.weixin.getWxMenu);
-
+  router.get('/mail', controller.mail.send);
 };
