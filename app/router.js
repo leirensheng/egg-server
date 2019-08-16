@@ -21,4 +21,5 @@ module.exports = app => {
   router.post('/setWxMenu', controller.weixin.setWxMenu);
   router.post('/getWxMenu', controller.weixin.getWxMenu);
   router.get('/mail', controller.mail.send);
+  router.post('/upload', controller.mail.upload);
 };

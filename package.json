@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "await-stream-ready": "^1.0.1",
     "egg": "^2.2.1",
     "egg-cors": "^2.1.1",
     "egg-development-proxyagent": "^1.0.0",
@@ -12,6 +13,8 @@
     "egg-static": "^2.1.1",
     "koa-is-json": "^1.0.0",
     "nodemailer": "^4.7.0",
+    "save": "^2.4.0",
+    "stream-wormhole": "^1.1.0",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
